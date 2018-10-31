@@ -41,21 +41,14 @@ namespace Quinmars.AsyncObservable
             }
 
             public bool IsDisposing => _lock != 0;
-            public bool IsDisposed => _upstream != null && _upstream.IsDisposed;
 
-            public void Dispose()
+            public async ValueTask DisposeAsync()
             {
                 if (Interlocked.Exchange(ref _lock, 1) == 0)
                 {
-                    _upstream.Dispose();
+                    await _upstream.DisposeAsync();
                     _action();
                 }
-            }
-
-            public ValueTask DisposeAsync()
-            {
-                Dispose();
-                return _upstream.DisposeAsync();
             }
         }
     }

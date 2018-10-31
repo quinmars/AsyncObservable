@@ -40,41 +40,32 @@ namespace Quinmars.AsyncObservable
             }
             catch (Exception ex)
             {
-                Dispose();
-                _onError(ex);
+                return OnErrorAsync(ex);
             }
             return new ValueTask();
         }
 
-        public ValueTask OnCompletedAsync()
+        public async ValueTask OnCompletedAsync()
         {
-            Dispose();
+            await DisposeAsync();
             _onCompleted();
-            return new ValueTask();
         }
 
-        public ValueTask OnErrorAsync(Exception error)
+        public async ValueTask OnErrorAsync(Exception error)
         {
-            Dispose();
+            await DisposeAsync();
             _onError(error);
-            return new ValueTask();
         }
 
         public bool IsDisposing => _lock != 0;
-        public bool IsDisposed => _downstream != null && _downstream.IsDisposed;
-
-        public void Dispose()
-        {
-            if (Interlocked.Exchange(ref _lock, 1) == 0)
-            {
-                _downstream.Dispose();
-            }
-        }
 
         public ValueTask DisposeAsync()
         {
-            Dispose();
-            return _downstream.DisposeAsync();
+            if (Interlocked.Exchange(ref _lock, 1) == 0)
+            {
+                return _downstream.DisposeAsync();
+            }
+            return new ValueTask();
         }
     }
 }

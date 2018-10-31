@@ -40,10 +40,15 @@ namespace Quinmars.AsyncObservable
                 }
                 catch (Exception ex)
                 {
-                    _upstream.Dispose();
-                    return _downstream.OnErrorAsync(ex);
+                    return ForwardError(ex);
                 }
                 return _downstream.OnNextAsync(value);
+            }
+
+            private async ValueTask ForwardError(Exception ex)
+            {
+                await _upstream.DisposeAsync();
+                await _downstream.OnErrorAsync(ex);
             }
         }
     }

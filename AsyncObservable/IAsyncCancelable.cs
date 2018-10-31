@@ -4,9 +4,8 @@ using System.Text;
 
 namespace Quinmars.AsyncObservable
 {
-    public interface IAsyncCancelable : IAsyncDisposable, IDisposable
+    public interface IAsyncCancelable : IAsyncDisposable
     {
         bool IsDisposing { get; }
-        bool IsDisposed { get; }
     }
 }

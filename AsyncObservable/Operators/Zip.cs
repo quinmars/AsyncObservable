@@ -30,7 +30,8 @@ namespace Quinmars.AsyncObservable
             var t1 = _source1.SubscribeAsync(o1);
             var t2 = _source2.SubscribeAsync(o2);
 
-            await Task.WhenAll(t1.AsTask(), t2.AsTask());
+            var t = Task.WhenAll(t1.AsTask(), t2.AsTask());
+            await t;
         }
 
         class SharedSink : IAsyncCancelable
@@ -67,12 +68,17 @@ namespace Quinmars.AsyncObservable
             {
                 if (_upstream1._done || _upstream2._done)
                 {
-                    Dispose();
+                    await DisposeAsync();
                     await _downstream.OnCompletedAsync();
+                    _tcs.SetResult(true);
                     return;
                 }
                 else if (_upstream1._exception != null || _upstream2._exception != null)
                 {
+                    await DisposeAsync();
+                    var ex = CreateAggregateException(_upstream1._exception, _upstream2._exception);
+                    await _downstream.OnErrorAsync(ex);
+                    _tcs.SetResult(true);
                     return;
                 }
 
@@ -88,22 +94,30 @@ namespace Quinmars.AsyncObservable
                 tcs.SetResult(true);
             }
 
-            public bool IsDisposing => throw new NotImplementedException();
-            public bool IsDisposed => throw new NotImplementedException();
-
-            public void Dispose()
+            private static Exception CreateAggregateException(Exception exception1, Exception exception2)
             {
-                _upstream1._dispose.Dispose();
-                _upstream2._dispose.Dispose();
+                if (exception1 == null)
+                    return exception2;
+                else if (exception2 == null)
+                    return exception1;
+                return new AggregateException(exception1, exception2);
             }
+
+            int _disposLock;
+            public bool IsDisposing => _disposLock != 0;
 
             public ValueTask DisposeAsync()
             {
-                var d1 = _upstream1._dispose.DisposeAsync();
-                var d2 = _upstream2._dispose.DisposeAsync();
+                if (Interlocked.Exchange(ref _disposLock, 1) != 1)
+                { 
+                    var d1 = _upstream1._dispose.DisposeAsync();
+                    var d2 = _upstream2._dispose.DisposeAsync();
 
-                var t = Task.WhenAll(d1.AsTask(), d2.AsTask());
-                return new ValueTask(t);
+                    var t = Task.WhenAll(d1.AsTask(), d2.AsTask());
+                    return new ValueTask(t);
+                }
+
+                return new ValueTask();
             }
 
             internal ValueTask ForwardSubscribeAsync()

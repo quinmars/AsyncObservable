@@ -45,7 +45,7 @@ namespace Quinmars.AsyncObservable
                 _upstream = disposable;
                 await _downstream.OnSubscibeAsync(disposable);
                 await _downstream.OnCompletedAsync();
-                _upstream.Dispose();
+                await _upstream.DisposeAsync();
             }
 
             public override ValueTask OnNextAsync(T value)
@@ -71,12 +71,12 @@ namespace Quinmars.AsyncObservable
                 catch (Exception ex)
                 {
                     await _downstream.OnErrorAsync(ex);
-                    _upstream.Dispose();
+                    await _upstream.DisposeAsync();
                     return;
                 }
 
                 await _downstream.OnCompletedAsync();
-                _upstream.Dispose();
+                await _upstream.DisposeAsync();
             }
         }
     }

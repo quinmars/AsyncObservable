@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Quinmars.AsyncObservable
 {
-    public class SynchronousAsyncObserver<T> : IAsyncObserver<T>, ICancelable
+    class SyncAsyncObserver<T> : IAsyncObserver<T>, ICancelable
     {
         static readonly Action<T> OnNextNop = v => { };
         static readonly Action<Exception> OnErrorNop = ex => throw ex;
@@ -19,7 +19,7 @@ namespace Quinmars.AsyncObservable
 
         ICancelable _upstream;
 
-        public SynchronousAsyncObserver(Action<T> onNext, Action<Exception> onError, Action onCompleted)
+        public SyncAsyncObserver(Action<T> onNext, Action<Exception> onError, Action onCompleted)
         {
             _onNext = onNext ?? OnNextNop;
             _onError = onError ?? OnErrorNop;

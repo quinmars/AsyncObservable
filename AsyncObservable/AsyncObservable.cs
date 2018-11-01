@@ -66,7 +66,7 @@ namespace Quinmars.AsyncObservable
 
         public static async ValueTask<ICancelable> SubscribeAsync<T>(this IAsyncObservable<T> source, Action<T> onNext = null, Action<Exception> onError = null, Action onCompleted = null)
         {
-            var observer = new SynchronousAsyncObserver<T>(onNext, onError, onCompleted);
+            var observer = new SyncAsyncObserver<T>(onNext, onError, onCompleted);
             await source.SubscribeAsync(observer);
             return observer;
         }

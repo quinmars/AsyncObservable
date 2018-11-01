@@ -23,10 +23,9 @@ namespace Quinmars.AsyncObservable
             return _source.SubscribeAsync(o);
         }
 
-        private class Observer : BaseAsyncObserver<T>, IAsyncCancelable
+        private class Observer : BaseAsyncObserver<T>
         {
             readonly Action _action;
-            int _lock;
 
             public Observer(IAsyncObserver<T> observer, Action action)
                 : base(observer)
@@ -34,21 +33,10 @@ namespace Quinmars.AsyncObservable
                 _action = action;
             }
 
-            public override ValueTask OnSubscibeAsync(IAsyncCancelable disposable)
+            public override ValueTask DisposeAsync()
             {
-                _upstream = disposable;
-                return _downstream.OnSubscibeAsync(this);
-            }
-
-            public bool IsDisposing => _lock != 0;
-
-            public async ValueTask DisposeAsync()
-            {
-                if (Interlocked.Exchange(ref _lock, 1) == 0)
-                {
-                    await _upstream.DisposeAsync();
-                    _action();
-                }
+                _action();
+                return _downstream.DisposeAsync();
             }
         }
     }

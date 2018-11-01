@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reactive.Disposables;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -32,7 +33,7 @@ namespace Quinmars.AsyncObservable
                 _remaining = count;
             }
 
-            public override ValueTask OnSubscibeAsync(IAsyncCancelable disposable)
+            public override ValueTask OnSubscibeAsync(ICancelable disposable)
             {
                 if (_remaining == 0)
                     return ForwardFinalOnSubscribe(disposable);
@@ -40,17 +41,19 @@ namespace Quinmars.AsyncObservable
                 return base.OnSubscibeAsync(disposable);
             }
 
-            private async ValueTask ForwardFinalOnSubscribe(IAsyncCancelable disposable)
+            private async ValueTask ForwardFinalOnSubscribe(ICancelable disposable)
             {
                 _upstream = disposable;
+                Dispose();
                 await _downstream.OnSubscibeAsync(disposable);
                 await _downstream.OnCompletedAsync();
-                await _upstream.DisposeAsync();
             }
 
             public override ValueTask OnNextAsync(T value)
             {
-                if (_remaining == 1)
+                if (IsDisposed)
+                    return new ValueTask();
+                else if (_remaining == 1)
                     return ForwardLast(value);
                 else if (_remaining > 1)
                 {
@@ -70,13 +73,13 @@ namespace Quinmars.AsyncObservable
                 }
                 catch (Exception ex)
                 {
+                    Dispose();
                     await _downstream.OnErrorAsync(ex);
-                    await _upstream.DisposeAsync();
                     return;
                 }
 
+                Dispose();
                 await _downstream.OnCompletedAsync();
-                await _upstream.DisposeAsync();
             }
         }
     }

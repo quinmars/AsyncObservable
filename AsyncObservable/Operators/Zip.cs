@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reactive.Disposables;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,25 +35,22 @@ namespace Quinmars.AsyncObservable
             await t;
         }
 
-        class SharedSink : IAsyncCancelable
+        class SharedSink : ICancelable
         {
             readonly IAsyncObserver<(T1, T2)> _downstream;
 
             public Observer<T1> _upstream1;
             public Observer<T2> _upstream2;
 
-            public int _lock;
-            public TaskCompletionSource<bool> _tcs;
-
-            public int _lockDisposable;
-            public TaskCompletionSource<bool> _tcsDisposable;
-
             public SharedSink(IAsyncObserver<(T1,T2)> observer)
             {
                 _downstream = observer;
                 _tcs = new TaskCompletionSource<bool>();
-                _tcsDisposable = new TaskCompletionSource<bool>();
+                _tcsSubscribe = new TaskCompletionSource<bool>();
             }
+
+            public int _lock;
+            public TaskCompletionSource<bool> _tcs;
 
             public ValueTask ForwardAsync()
             {
@@ -68,14 +66,14 @@ namespace Quinmars.AsyncObservable
             {
                 if (_upstream1._done || _upstream2._done)
                 {
-                    await DisposeAsync();
+                    Dispose();
                     await _downstream.OnCompletedAsync();
                     _tcs.SetResult(true);
                     return;
                 }
                 else if (_upstream1._exception != null || _upstream2._exception != null)
                 {
-                    await DisposeAsync();
+                    Dispose();
                     var ex = CreateAggregateException(_upstream1._exception, _upstream2._exception);
                     await _downstream.OnErrorAsync(ex);
                     _tcs.SetResult(true);
@@ -103,36 +101,45 @@ namespace Quinmars.AsyncObservable
                 return new AggregateException(exception1, exception2);
             }
 
-            int _disposLock;
-            public bool IsDisposing => _disposLock != 0;
-
-            public ValueTask DisposeAsync()
-            {
-                if (Interlocked.Exchange(ref _disposLock, 1) != 1)
-                { 
-                    var d1 = _upstream1._dispose.DisposeAsync();
-                    var d2 = _upstream2._dispose.DisposeAsync();
-
-                    var t = Task.WhenAll(d1.AsTask(), d2.AsTask());
-                    return new ValueTask(t);
-                }
-
-                return new ValueTask();
-            }
+            int _lockSubscribe;
+            TaskCompletionSource<bool> _tcsSubscribe;
 
             internal ValueTask ForwardSubscribeAsync()
             {
-                if (Interlocked.Increment(ref _lockDisposable) == 2)
+                if (Interlocked.Increment(ref _lockSubscribe) == 2)
                 {
                     return ForwardSubscribeCoreAsync();
                 }
-                return new ValueTask(_tcsDisposable.Task);
+                return new ValueTask(_tcsSubscribe.Task);
             }
 
             private async ValueTask ForwardSubscribeCoreAsync()
             {
                 await _downstream.OnSubscibeAsync(this);
-                _tcsDisposable.SetResult(true);
+                _tcsSubscribe.SetResult(true);
+            }
+
+            int _lockDispose;
+
+            public ValueTask ForwardDisposeAsync()
+            {
+                if (Interlocked.Increment(ref _lockDispose) == 2)
+                {
+                    return _downstream.DisposeAsync();
+                }
+                return new ValueTask();
+            }
+
+            int _disposLock;
+            public bool IsDisposed => _disposLock != 0;
+
+            public void Dispose()
+            {
+                if (Interlocked.Exchange(ref _disposLock, 1) != 1)
+                { 
+                    _upstream1._dispose.Dispose();
+                    _upstream2._dispose.Dispose();
+                }
             }
         }
 
@@ -143,14 +150,14 @@ namespace Quinmars.AsyncObservable
             public T _value;
             public bool _done;
             public Exception _exception;
-            public IAsyncCancelable _dispose;
+            public ICancelable _dispose;
 
             public Observer(SharedSink sink)
             {
                 _sink = sink;
             }
 
-            public ValueTask OnSubscibeAsync(IAsyncCancelable disposable)
+            public ValueTask OnSubscibeAsync(ICancelable disposable)
             {
                 _dispose = disposable;
                 return _sink.ForwardSubscribeAsync();
@@ -172,6 +179,11 @@ namespace Quinmars.AsyncObservable
             {
                 _done = true;
                 return _sink.ForwardAsync();
+            }
+
+            public ValueTask DisposeAsync()
+            {
+                return _sink.ForwardDisposeAsync();
             }
         }
     }

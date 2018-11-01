@@ -116,7 +116,7 @@ namespace Tests
             var d = await AsyncObservable.Never<int>()
                 .SubscribeAsync(i => result += i, ex => result += "E", () => result += "C");
 
-            await d.DisposeAsync();
+            d.Dispose();
             result
                 .Should().Be("");
         }
@@ -167,7 +167,7 @@ namespace Tests
                 .Finally(() => result += "2")
                 .SubscribeAsync(i => result += "N", ex => result += "E", () => result += "C");
 
-            await d.DisposeAsync();
+            d.Dispose();
             result
                 .Should().Be("12");
         }
@@ -197,7 +197,7 @@ namespace Tests
                 .SubscribeAsync(i => result += "N", ex => result += "E", () => result += "C");
 
             result
-                .Should().Be("12C");
+                .Should().Be("C12");
         }
 
         [Fact]
@@ -211,7 +211,7 @@ namespace Tests
                 .SubscribeAsync(i => result += "N", ex => result += "E", () => result += "C");
 
             result
-                .Should().Be("N12C");
+                .Should().Be("NC12");
         }
 
         [Fact]
@@ -225,7 +225,7 @@ namespace Tests
                 .SubscribeAsync(i => result += "N", ex => result += "E", () => result += "C");
 
             result
-                .Should().Be("12E");
+                .Should().Be("E12");
         }
 
         [Fact]
@@ -240,7 +240,7 @@ namespace Tests
                 .SubscribeAsync(i => result += "N", ex => result += "E", () => result += "C");
 
             result
-                .Should().Be("N1234C");
+                .Should().Be("NC1234");
         }
 
         [Fact]
@@ -254,7 +254,7 @@ namespace Tests
                 .Finally(() => result += "4")
                 .SubscribeAsync(i => result += "N", ex => result += "E", () => result += "C");
 
-            await d.DisposeAsync();
+            d.Dispose();
 
             result
                 .Should().Be("1234");

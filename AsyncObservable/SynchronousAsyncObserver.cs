@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reactive.Disposables;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Quinmars.AsyncObservable
 {
-    public class SynchronousAsyncObserver<T> : IAsyncObserver<T>, IAsyncCancelable
+    public class SynchronousAsyncObserver<T> : IAsyncObserver<T>, ICancelable
     {
         static readonly Action<T> OnNextNop = v => { };
         static readonly Action<Exception> OnErrorNop = ex => throw ex;
@@ -16,8 +17,7 @@ namespace Quinmars.AsyncObservable
         readonly Action<Exception> _onError;
         readonly Action _onCompleted;
 
-        IAsyncCancelable _downstream;
-        int _lock;
+        ICancelable _upstream;
 
         public SynchronousAsyncObserver(Action<T> onNext, Action<Exception> onError, Action onCompleted)
         {
@@ -26,46 +26,54 @@ namespace Quinmars.AsyncObservable
             _onCompleted = onCompleted ?? OnCompletedNop;
         }
 
-        public ValueTask OnSubscibeAsync(IAsyncCancelable disposable)
+        public ValueTask OnSubscibeAsync(ICancelable disposable)
         {
-            _downstream = disposable;
+            _upstream = disposable;
             return new ValueTask();
         }
 
         public ValueTask OnNextAsync(T value)
         {
+            if (IsDisposed)
+                return new ValueTask();
+
             try
             {
                 _onNext(value);
             }
             catch (Exception ex)
             {
+                Dispose();
                 return OnErrorAsync(ex);
             }
             return new ValueTask();
         }
 
-        public async ValueTask OnCompletedAsync()
+        public ValueTask OnCompletedAsync()
         {
-            await DisposeAsync();
-            _onCompleted();
+            if (!IsDisposed)
+                _onCompleted();
+            return new ValueTask();
         }
 
-        public async ValueTask OnErrorAsync(Exception error)
+        public ValueTask OnErrorAsync(Exception error)
         {
-            await DisposeAsync();
-            _onError(error);
+            if (!IsDisposed)
+                _onError(error);
+            return new ValueTask();
         }
 
-        public bool IsDisposing => _lock != 0;
+        public bool IsDisposed { get; private set; }
 
         public ValueTask DisposeAsync()
         {
-            if (Interlocked.Exchange(ref _lock, 1) == 0)
-            {
-                return _downstream.DisposeAsync();
-            }
             return new ValueTask();
+        }
+
+        public void Dispose()
+        {
+            IsDisposed = true;
+            _upstream.Dispose();
         }
     }
 }

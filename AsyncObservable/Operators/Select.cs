@@ -34,6 +34,9 @@ namespace Quinmars.AsyncObservable
 
             public override ValueTask OnNextAsync(TSource value)
             {
+                if (IsDisposed)
+                    return new ValueTask();
+
                 TResult v;
                 try
                 {
@@ -41,6 +44,7 @@ namespace Quinmars.AsyncObservable
                 }
                 catch (Exception ex)
                 {
+                    Dispose();
                     return _downstream.OnErrorAsync(ex);
                 }
 

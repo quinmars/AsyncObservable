@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reactive.Disposables;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,16 +19,14 @@ namespace Quinmars.AsyncObservable
 
         public async ValueTask SubscribeAsync(IAsyncObserver<int> observer)
         {
-            var disposable = new ImmediateAsyncCancelable();
+            var disposable = new BooleanDisposable();
 
             await observer.OnSubscibeAsync(disposable);
 
             for (int i = _start; i < _end; i++)
             {
-                if (disposable.IsDisposing)
-                {
-                    return;
-                }
+                if (disposable.IsDisposed)
+                    break;
 
                 var t = observer.OnNextAsync(i);
 
@@ -38,13 +37,14 @@ namespace Quinmars.AsyncObservable
                 catch (Exception ex)
                 {
                     await observer.OnErrorAsync(ex);
-                    return;
+                    break;
                 }
             }
 
-            if (!disposable.IsDisposing)
+            if (!disposable.IsDisposed)
                 await observer.OnCompletedAsync();
 
+            await observer.DisposeAsync();
         }
     }
 }

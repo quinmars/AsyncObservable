@@ -34,21 +34,19 @@ namespace Quinmars.AsyncObservable
 
             public override ValueTask OnNextAsync(T value)
             {
+                if (IsDisposed)
+                    return new ValueTask();
+
                 try
                 {
                     _action(value);
                 }
                 catch (Exception ex)
                 {
-                    return ForwardError(ex);
+                    Dispose();
+                    return _downstream.OnErrorAsync(ex);
                 }
                 return _downstream.OnNextAsync(value);
-            }
-
-            private async ValueTask ForwardError(Exception ex)
-            {
-                await _upstream.DisposeAsync();
-                await _downstream.OnErrorAsync(ex);
             }
         }
     }

@@ -1,36 +1,56 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reactive.Disposables;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Quinmars.AsyncObservable
 {
-    public abstract class BaseAsyncObserver<TSource, TResult> : IAsyncObserver<TSource>
+    public abstract class BaseAsyncObserver<TSource, TResult> : IAsyncObserver<TSource>, ICancelable
     {
         protected readonly IAsyncObserver<TResult> _downstream;
-        protected IAsyncCancelable _upstream;
+        protected ICancelable _upstream;
+
+        public bool IsDisposed { get; protected set; }
 
         public BaseAsyncObserver(IAsyncObserver<TResult> observer)
         {
             _downstream = observer;
         }
 
-        public virtual ValueTask OnSubscibeAsync(IAsyncCancelable disposable)
+        public virtual ValueTask OnSubscibeAsync(ICancelable disposable)
         {
             _upstream = disposable;
-            return _downstream.OnSubscibeAsync(disposable);
+            return _downstream.OnSubscibeAsync(this);
         }
 
         public abstract ValueTask OnNextAsync(TSource value);
 
         public virtual ValueTask OnErrorAsync(Exception error)
         {
+            if (IsDisposed)
+                return new ValueTask();
+
             return _downstream.OnErrorAsync(error);
         }
 
-        public ValueTask OnCompletedAsync()
+        public virtual ValueTask OnCompletedAsync()
         {
+            if (IsDisposed)
+                return new ValueTask();
+
             return _downstream.OnCompletedAsync();
+        }
+
+        public virtual ValueTask DisposeAsync()
+        {
+            return _downstream.DisposeAsync();
+        }
+
+        public virtual void Dispose()
+        {
+            IsDisposed = true;
+            _upstream.Dispose();
         }
     }
 
@@ -42,6 +62,9 @@ namespace Quinmars.AsyncObservable
 
         public override ValueTask OnNextAsync(T value)
         {
+            if (IsDisposed)
+                return new ValueTask();
+
             return _downstream.OnNextAsync(value);
         }
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reactive.Disposables;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -63,7 +64,7 @@ namespace Quinmars.AsyncObservable
             return new Zip<T1, T2>(source1, source2);
         }
 
-        public static async ValueTask<IAsyncDisposable> SubscribeAsync<T>(this IAsyncObservable<T> source, Action<T> onNext = null, Action<Exception> onError = null, Action onCompleted = null)
+        public static async ValueTask<ICancelable> SubscribeAsync<T>(this IAsyncObservable<T> source, Action<T> onNext = null, Action<Exception> onError = null, Action onCompleted = null)
         {
             var observer = new SynchronousAsyncObserver<T>(onNext, onError, onCompleted);
             await source.SubscribeAsync(observer);

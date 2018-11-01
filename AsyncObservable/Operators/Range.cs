@@ -8,8 +8,8 @@ namespace Quinmars.AsyncObservable
 {
     class Range : IAsyncObservable<int>
     {
-        private readonly int _start;
-        private readonly int _end;
+        readonly int _start;
+        readonly int _end;
 
         public Range(int start, int count)
         {

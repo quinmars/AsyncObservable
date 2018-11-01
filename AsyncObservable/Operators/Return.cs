@@ -8,7 +8,7 @@ namespace Quinmars.AsyncObservable
 {
     class Return<T> : IAsyncObservable<T>
     {
-        private readonly T _value;
+        readonly T _value;
 
         public Return(T value)
         {

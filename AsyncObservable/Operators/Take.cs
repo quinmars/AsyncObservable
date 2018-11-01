@@ -23,7 +23,7 @@ namespace Quinmars.AsyncObservable
             return _source.SubscribeAsync(o);
         }
 
-        private class Observer : BaseAsyncObserver<T>
+        class Observer : BaseAsyncObserver<T>
         {
             int _remaining;
 
@@ -41,7 +41,7 @@ namespace Quinmars.AsyncObservable
                 return base.OnSubscibeAsync(disposable);
             }
 
-            private async ValueTask ForwardFinalOnSubscribe(ICancelable disposable)
+            async ValueTask ForwardFinalOnSubscribe(ICancelable disposable)
             {
                 _upstream = disposable;
                 Dispose();
@@ -64,7 +64,7 @@ namespace Quinmars.AsyncObservable
                 return new ValueTask();
             }
 
-            private async ValueTask ForwardLast(T value)
+            async ValueTask ForwardLast(T value)
             {
                 try
                 {

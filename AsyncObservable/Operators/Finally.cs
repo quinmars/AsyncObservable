@@ -23,7 +23,7 @@ namespace Quinmars.AsyncObservable
             return _source.SubscribeAsync(o);
         }
 
-        private class Observer : BaseAsyncObserver<T>
+        class Observer : BaseAsyncObserver<T>
         {
             readonly Action _action;
 

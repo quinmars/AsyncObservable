@@ -8,7 +8,7 @@ namespace Quinmars.AsyncObservable
 {
     class Throw<T> : IAsyncObservable<T>
     {
-        private readonly Exception _exception;
+        readonly Exception _exception;
 
         public Throw(Exception ex)
         {

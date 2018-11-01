@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Quinmars.AsyncObservable
 {
-    public abstract class BaseAsyncObserver<TSource, TResult> : IAsyncObserver<TSource>, ICancelable
+    abstract class BaseAsyncObserver<TSource, TResult> : IAsyncObserver<TSource>, ICancelable
     {
         protected readonly IAsyncObserver<TResult> _downstream;
         protected ICancelable _upstream;
@@ -54,7 +54,7 @@ namespace Quinmars.AsyncObservable
         }
     }
 
-    public class BaseAsyncObserver<T> : BaseAsyncObserver<T, T>
+    class BaseAsyncObserver<T> : BaseAsyncObserver<T, T>
     {
         public BaseAsyncObserver(IAsyncObserver<T> observer) : base(observer)
         {

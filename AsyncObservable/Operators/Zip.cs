@@ -92,7 +92,7 @@ namespace Quinmars.AsyncObservable
                 tcs.SetResult(true);
             }
 
-            private static Exception CreateAggregateException(Exception exception1, Exception exception2)
+            static Exception CreateAggregateException(Exception exception1, Exception exception2)
             {
                 if (exception1 == null)
                     return exception2;
@@ -113,7 +113,7 @@ namespace Quinmars.AsyncObservable
                 return new ValueTask(_tcsSubscribe.Task);
             }
 
-            private async ValueTask ForwardSubscribeCoreAsync()
+            async ValueTask ForwardSubscribeCoreAsync()
             {
                 await _downstream.OnSubscibeAsync(this);
                 _tcsSubscribe.SetResult(true);
@@ -143,7 +143,7 @@ namespace Quinmars.AsyncObservable
             }
         }
 
-        private class Observer<T> : IAsyncObserver<T>
+        class Observer<T> : IAsyncObserver<T>
         {
             readonly SharedSink _sink;
 

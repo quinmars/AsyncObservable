@@ -17,9 +17,9 @@ namespace Quinmars.AsyncObservable
 
         class Disposable : ICancelable
         {
-            readonly IAsyncDisposable _asyncDisposable;
+            readonly IAsyncObserver<T> _asyncDisposable;
 
-            public Disposable(IAsyncDisposable asyncDisposable)
+            public Disposable(IAsyncObserver<T> asyncDisposable)
             {
                 _asyncDisposable = asyncDisposable;
             }
@@ -29,7 +29,7 @@ namespace Quinmars.AsyncObservable
             public async void Dispose()
             {
                 IsDisposed = true;
-                await _asyncDisposable.DisposeAsync();
+                await _asyncDisposable.OnFinallyAsync();
             }
         }
     }

@@ -65,7 +65,7 @@ namespace Quinmars.AsyncObservable
 
         public bool IsDisposed { get; private set; }
 
-        public ValueTask DisposeAsync()
+        public ValueTask OnFinallyAsync()
         {
             return new ValueTask();
         }

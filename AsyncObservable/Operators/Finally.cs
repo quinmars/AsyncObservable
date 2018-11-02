@@ -33,10 +33,10 @@ namespace Quinmars.AsyncObservable
                 _action = action;
             }
 
-            public override ValueTask DisposeAsync()
+            public override ValueTask OnFinallyAsync()
             {
                 _action();
-                return _downstream.DisposeAsync();
+                return _downstream.OnFinallyAsync();
             }
         }
     }

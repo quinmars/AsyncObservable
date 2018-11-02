@@ -121,11 +121,11 @@ namespace Quinmars.AsyncObservable
 
             int _lockDispose;
 
-            public ValueTask ForwardDisposeAsync()
+            public ValueTask ForwardFinallyAsync()
             {
                 if (Interlocked.Increment(ref _lockDispose) == 2)
                 {
-                    return _downstream.DisposeAsync();
+                    return _downstream.OnFinallyAsync();
                 }
                 return new ValueTask();
             }
@@ -181,9 +181,9 @@ namespace Quinmars.AsyncObservable
                 return _sink.ForwardAsync();
             }
 
-            public ValueTask DisposeAsync()
+            public ValueTask OnFinallyAsync()
             {
-                return _sink.ForwardDisposeAsync();
+                return _sink.ForwardFinallyAsync();
             }
         }
     }

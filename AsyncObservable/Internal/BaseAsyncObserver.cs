@@ -42,9 +42,9 @@ namespace Quinmars.AsyncObservable
             return _downstream.OnCompletedAsync();
         }
 
-        public virtual ValueTask DisposeAsync()
+        public virtual ValueTask OnFinallyAsync()
         {
-            return _downstream.DisposeAsync();
+            return _downstream.OnFinallyAsync();
         }
 
         public virtual void Dispose()

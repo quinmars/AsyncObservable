@@ -44,7 +44,7 @@ namespace Quinmars.AsyncObservable
             if (!disposable.IsDisposed)
                 await observer.OnCompletedAsync();
 
-            await observer.DisposeAsync();
+            await observer.OnFinallyAsync();
         }
     }
 }

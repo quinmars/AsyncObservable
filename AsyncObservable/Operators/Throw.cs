@@ -26,7 +26,7 @@ namespace Quinmars.AsyncObservable
                 await observer.OnErrorAsync(_exception);
             }
 
-            await observer.DisposeAsync();
+            await observer.OnFinallyAsync();
         }
     }
 }

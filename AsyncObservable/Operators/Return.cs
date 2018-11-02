@@ -23,7 +23,7 @@ namespace Quinmars.AsyncObservable
 
             if (disposable.IsDisposed)
             {
-                await observer.DisposeAsync();
+                await observer.OnFinallyAsync();
                 return;
             }
 
@@ -39,14 +39,14 @@ namespace Quinmars.AsyncObservable
                 {
                     await observer.OnErrorAsync(ex);
                 }
-                await observer.DisposeAsync();
+                await observer.OnFinallyAsync();
                 return;
             }
 
             if (!disposable.IsDisposed)
                 await observer.OnCompletedAsync();
 
-            await observer.DisposeAsync();
+            await observer.OnFinallyAsync();
         }
     }
 }

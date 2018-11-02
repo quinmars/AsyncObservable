@@ -29,13 +29,13 @@ namespace Quinmars.AsyncObservable
         public ValueTask OnSubscibeAsync(ICancelable disposable)
         {
             _upstream = disposable;
-            return new ValueTask();
+            return default;
         }
 
         public ValueTask OnNextAsync(T value)
         {
             if (IsDisposed)
-                return new ValueTask();
+                return default;
 
             try
             {
@@ -46,28 +46,30 @@ namespace Quinmars.AsyncObservable
                 Dispose();
                 return OnErrorAsync(ex);
             }
-            return new ValueTask();
+            return default;
         }
 
         public ValueTask OnCompletedAsync()
         {
             if (!IsDisposed)
                 _onCompleted();
-            return new ValueTask();
+
+            return default;
         }
 
         public ValueTask OnErrorAsync(Exception error)
         {
             if (!IsDisposed)
                 _onError(error);
-            return new ValueTask();
+
+            return default;
         }
 
         public bool IsDisposed { get; private set; }
 
         public ValueTask OnFinallyAsync()
         {
-            return new ValueTask();
+            return default;
         }
 
         public void Dispose()

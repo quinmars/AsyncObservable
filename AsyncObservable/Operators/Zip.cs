@@ -127,7 +127,7 @@ namespace Quinmars.AsyncObservable
                 {
                     return _downstream.OnFinallyAsync();
                 }
-                return new ValueTask();
+                return default;
             }
 
             int _disposLock;

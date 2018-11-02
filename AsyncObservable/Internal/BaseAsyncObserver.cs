@@ -29,7 +29,7 @@ namespace Quinmars.AsyncObservable
         public virtual ValueTask OnErrorAsync(Exception error)
         {
             if (IsDisposed)
-                return new ValueTask();
+                return default;
 
             return _downstream.OnErrorAsync(error);
         }
@@ -37,7 +37,7 @@ namespace Quinmars.AsyncObservable
         public virtual ValueTask OnCompletedAsync()
         {
             if (IsDisposed)
-                return new ValueTask();
+                return default;
 
             return _downstream.OnCompletedAsync();
         }
@@ -63,7 +63,7 @@ namespace Quinmars.AsyncObservable
         public override ValueTask OnNextAsync(T value)
         {
             if (IsDisposed)
-                return new ValueTask();
+                return default;
 
             return _downstream.OnNextAsync(value);
         }

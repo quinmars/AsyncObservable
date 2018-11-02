@@ -52,7 +52,7 @@ namespace Quinmars.AsyncObservable
             public override ValueTask OnNextAsync(T value)
             {
                 if (IsDisposed)
-                    return new ValueTask();
+                    return default;
                 else if (_remaining == 1)
                     return ForwardLast(value);
                 else if (_remaining > 1)
@@ -61,7 +61,7 @@ namespace Quinmars.AsyncObservable
                     return _downstream.OnNextAsync(value);
                 }
 
-                return new ValueTask();
+                return default;
             }
 
             async ValueTask ForwardLast(T value)

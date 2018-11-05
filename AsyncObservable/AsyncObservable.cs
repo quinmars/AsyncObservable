@@ -64,6 +64,11 @@ namespace Quinmars.AsyncObservable
             return new Zip<T1, T2>(source1, source2);
         }
 
+        public static IAsyncObservable<T> ToAsyncObservable<T>(this IObservable<T> source)
+        {
+            return new FromObservable<T>(source);
+        }
+
         public static async ValueTask<ICancelable> SubscribeAsync<T>(this IAsyncObservable<T> source, Action<T> onNext = null, Action<Exception> onError = null, Action onCompleted = null)
         {
             var observer = new SyncAsyncObserver<T>(onNext, onError, onCompleted);

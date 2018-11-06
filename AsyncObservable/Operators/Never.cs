@@ -10,27 +10,13 @@ namespace Quinmars.AsyncObservable
     {
         public async ValueTask SubscribeAsync(IAsyncObserver<T> observer)
         {
-            var disposable = new Disposable(observer);
+            var disposable = new AwaitableDisposable();
 
             await observer.OnSubscibeAsync(disposable);
-        }
 
-        class Disposable : ICancelable
-        {
-            readonly IAsyncObserver<T> _asyncDisposable;
+            await disposable.Task;
 
-            public Disposable(IAsyncObserver<T> asyncDisposable)
-            {
-                _asyncDisposable = asyncDisposable;
-            }
-
-            public bool IsDisposed { get; private set; }
-
-            public async void Dispose()
-            {
-                IsDisposed = true;
-                await _asyncDisposable.OnFinallyAsync();
-            }
+            await observer.OnFinallyAsync();
         }
     }
 }

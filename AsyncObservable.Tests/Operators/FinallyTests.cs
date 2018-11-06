@@ -11,14 +11,14 @@ namespace Tests
     public class FinallyTests
     {
         [Fact]
-        public async Task Finally1()
+        public void Finally1()
         {
             string result = "";
 
-            var d = await AsyncObservable.Never<int>()
+            var d = AsyncObservable.Never<int>()
                 .Finally(() => result += "1")
                 .Finally(() => result += "2")
-                .SubscribeAsync(i => result += "N", ex => result += "E", () => result += "C");
+                .Subscribe(i => result += "N", ex => result += "E", () => result += "C");
 
             d.Dispose();
             result
@@ -26,11 +26,11 @@ namespace Tests
         }
 
         [Fact]
-        public async Task Finally2()
+        public void Finally2()
         {
             string result = "";
 
-            var d = await AsyncObservable.Never<int>()
+            AsyncObservable.Never<int>()
                 .Finally(() => result += "1")
                 .Finally(() => result += "2")
                 .SubscribeAsync(i => result += "N", ex => result += "E", () => result += "C");
@@ -44,7 +44,7 @@ namespace Tests
         {
             string result = "";
 
-            var d = await AsyncObservable.Empty<int>()
+            await AsyncObservable.Empty<int>()
                 .Finally(() => result += "1")
                 .Finally(() => result += "2")
                 .SubscribeAsync(i => result += "N", ex => result += "E", () => result += "C");

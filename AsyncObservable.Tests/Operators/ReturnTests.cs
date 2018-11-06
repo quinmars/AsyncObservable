@@ -15,7 +15,7 @@ namespace Tests
         {
             string result = "";
 
-            var d = await AsyncObservable.Return(1)
+            await AsyncObservable.Return(1)
                 .SubscribeAsync(i => result += i, ex => result += "E", () => result += "C");
 
             result

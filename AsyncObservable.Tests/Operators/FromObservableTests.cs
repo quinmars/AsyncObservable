@@ -16,7 +16,7 @@ namespace Tests
         {
             string result = "";
 
-            var d = await Observable
+            await Observable
                 .Empty<int>()
                 .ToAsyncObservable()
                 .SubscribeAsync(i => result += i, ex => result += "E", () => result += "C");
@@ -26,13 +26,13 @@ namespace Tests
         }
 
         //[Fact]
-        public async Task Never()
+        public void Never()
         {
             string result = "";
 
-            var d = await Observable.Never<int>()
+            var d = Observable.Never<int>()
                 .ToAsyncObservable()
-                .SubscribeAsync(i => result += i, ex => result += "E", () => result += "C");
+                .Subscribe(i => result += i, ex => result += "E", () => result += "C");
 
             d.Dispose();
 
@@ -45,7 +45,7 @@ namespace Tests
         {
             string result = "";
 
-            var d = await Observable
+            await Observable
                 .Return(1)
                 .ToAsyncObservable()
                 .SubscribeAsync(i => result += i, ex => result += "E", () => result += "C");
@@ -59,7 +59,7 @@ namespace Tests
         {
             string result = "";
 
-            var d = await Observable
+            await Observable
                 .Range(0, 4)
                 .ToAsyncObservable()
                 .SubscribeAsync(i => result += i, ex => result += "E", () => result += "C");
@@ -73,7 +73,7 @@ namespace Tests
         {
             string result = "";
 
-            var d = await Observable
+            await Observable
                 .Throw<int>(new Exception())
                 .ToAsyncObservable()
                 .SubscribeAsync(i => result += i, ex => result += "E", () => result += "C");
@@ -87,7 +87,7 @@ namespace Tests
         {
             string result = "";
 
-            var d = await Observable
+        await Observable
                 .Range(0, 4)
                 .Do(i =>
                 {

@@ -11,12 +11,12 @@ namespace Tests
     public class NeverTests
     {
         [Fact]
-        public async Task Never1()
+        public void Never1()
         {
             string result = "";
 
-            var d = await AsyncObservable.Never<int>()
-                .SubscribeAsync(i => result += i, ex => result += "E", () => result += "C");
+            var d = AsyncObservable.Never<int>()
+                .Subscribe(i => result += i, ex => result += "E", () => result += "C");
 
             d.Dispose();
             result

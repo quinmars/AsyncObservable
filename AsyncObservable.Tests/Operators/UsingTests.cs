@@ -26,15 +26,15 @@ namespace Tests
         }
 
         [Fact]
-        public async Task Using2()
+        public void Using2()
         {
             var result = "";
-            var d = await AsyncObservable.Using(() => Disposable.Create(() => result += "3"),
+            var d = AsyncObservable.Using(() => Disposable.Create(() => result += "3"),
                 _ => AsyncObservable.Using(() => Disposable.Create(() => result += "2"),
                     __ => AsyncObservable.Using(() => Disposable.Create(() => result += "1"),
                         ___ =>AsyncObservable.Never<Unit>())))
                 .Finally(() => result += "4")
-                .SubscribeAsync(i => result += "N", ex => result += "E", () => result += "C");
+                .Subscribe(i => result += "N", ex => result += "E", () => result += "C");
 
             d.Dispose();
 

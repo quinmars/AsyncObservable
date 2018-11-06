@@ -15,7 +15,7 @@ namespace Tests
         {
             string result = "";
 
-            var d = await AsyncObservable.Throw<int>(new Exception())
+            await AsyncObservable.Throw<int>(new Exception())
                 .SubscribeAsync(i => result += i, ex => result += "E", () => result += "C");
 
             result

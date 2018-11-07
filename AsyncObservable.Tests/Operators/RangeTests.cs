@@ -11,7 +11,7 @@ namespace Tests
     public class RangeTests
     {
         [Fact]
-        public async Task Range1()
+        public async Task Count10()
         {
             string result = "";
 
@@ -20,6 +20,30 @@ namespace Tests
 
             result
                 .Should().Be("0123456789C");
+        }
+
+        [Fact]
+        public async Task Count0()
+        {
+            string result = "";
+
+            await AsyncObservable.Range(0, 0)
+                .SubscribeAsync(i => result += i, onCompleted: () => result += "C");
+
+            result
+                .Should().Be("C");
+        }
+
+        [Fact]
+        public async Task NegativStartPoint()
+        {
+            string result = "";
+
+            await AsyncObservable.Range(-3, 5)
+                .SubscribeAsync(i => result += i, onCompleted: () => result += "C");
+
+            result
+                .Should().Be("-3-2-101C");
         }
     }
 }

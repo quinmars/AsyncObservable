@@ -11,6 +11,20 @@ namespace Tests
     public class DoTests
     {
         [Fact]
+        public void ArgumentExceptions()
+        {
+            var obs1 = AsyncObservable.Range(0, 10);
+            var obs2 = (IAsyncObservable<int>)null;
+
+            obs1.Invoking(o => o.Do(null))
+                .Should().Throw<ArgumentNullException>();
+            obs2.Invoking(o => o.Do(_ => { }))
+                .Should().Throw<ArgumentNullException>();
+            obs2.Invoking(o => o.Do(null))
+                .Should().Throw<ArgumentNullException>();
+        }
+
+        [Fact]
         public async Task Do1()
         {
             string result = "";

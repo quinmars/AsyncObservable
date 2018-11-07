@@ -11,6 +11,20 @@ namespace Tests
     public class RangeTests
     {
         [Fact]
+        public void ArgumentExceptions()
+        {
+            Action action;
+
+            action = () => AsyncObservable.Range(0, 0);
+            action
+                .Should().NotThrow<ArgumentOutOfRangeException>();
+
+            action = () => AsyncObservable.Range(0, -1);
+            action
+                .Should().Throw<ArgumentOutOfRangeException>();
+        }
+
+        [Fact]
         public async Task Count10()
         {
             string result = "";

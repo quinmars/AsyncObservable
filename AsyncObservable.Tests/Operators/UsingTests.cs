@@ -11,6 +11,27 @@ namespace Tests
     public class UsingTests
     {
         [Fact]
+        public void ArgumentExceptions()
+        {
+            Func<IDisposable> funcR = null;
+            Func<IDisposable, IAsyncObservable<int>> funcO= null;
+
+            Action action;
+
+            action = () => AsyncObservable.Using(funcR, _ => AsyncObservable.Empty<int>());
+            action
+                .Should().Throw<ArgumentNullException>();
+
+            action = () => AsyncObservable.Using(() => new BooleanDisposable(), funcO);
+            action
+                .Should().Throw<ArgumentNullException>();
+
+            action = () => AsyncObservable.Using(funcR, funcO);
+            action
+                .Should().Throw<ArgumentNullException>();
+        }
+
+        [Fact]
         public async Task Using1()
         {
             var result = "";

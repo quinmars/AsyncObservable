@@ -12,6 +12,15 @@ namespace Tests
     public class FromObservableTests
     {
         [Fact]
+        public void ArgumentExceptions()
+        {
+            var obs = (IObservable<int>)null;
+
+            obs.Invoking(o => o.ToAsyncObservable())
+                .Should().Throw<ArgumentNullException>();
+        }
+
+        [Fact]
         public async Task Empty()
         {
             string result = "";

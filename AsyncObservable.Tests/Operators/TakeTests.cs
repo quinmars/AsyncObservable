@@ -11,6 +11,20 @@ namespace Tests
     public class TakeTests
     {
         [Fact]
+        public void ArgumentExceptions()
+        {
+            var obs1 = AsyncObservable.Range(0, 10);
+            var obs2 = (IAsyncObservable<int>)null;
+
+            obs1.Invoking(o => o.Take(-1))
+                .Should().Throw<ArgumentOutOfRangeException>();
+            obs2.Invoking(o => o.Take(2))
+                .Should().Throw<ArgumentNullException>();
+            obs2.Invoking(o => o.Take(-1))
+                .Should().Throw<ArgumentNullException>();
+        }
+
+        [Fact]
         public async Task Take0()
         {
             string result = "";

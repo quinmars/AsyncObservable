@@ -11,6 +11,20 @@ namespace Tests
     public class FinallyTests
     {
         [Fact]
+        public void ArgumentExceptions()
+        {
+            var obs1 = AsyncObservable.Range(0, 10);
+            var obs2 = (IAsyncObservable<int>)null;
+
+            obs1.Invoking(o => o.Finally(null))
+                .Should().Throw<ArgumentNullException>();
+            obs2.Invoking(o => o.Finally(() => { }))
+                .Should().Throw<ArgumentNullException>();
+            obs2.Invoking(o => o.Finally(null))
+                .Should().Throw<ArgumentNullException>();
+        }
+
+        [Fact]
         public void Finally1()
         {
             string result = "";

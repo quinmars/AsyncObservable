@@ -11,6 +11,20 @@ namespace Tests
     public class ZipTests
     {
         [Fact]
+        public void ArgumentExceptions()
+        {
+            var obs1 = AsyncObservable.Range(0, 10);
+            var obs2 = (IAsyncObservable<int>)null;
+
+            obs1.Invoking(o => o.Zip(obs2))
+                .Should().Throw<ArgumentNullException>();
+            obs2.Invoking(o => o.Zip(obs1))
+                .Should().Throw<ArgumentNullException>();
+            obs2.Invoking(o => o.Zip(obs2))
+                .Should().Throw<ArgumentNullException>();
+        }
+
+        [Fact]
         public async Task Zip1()
         {
             var result = "";

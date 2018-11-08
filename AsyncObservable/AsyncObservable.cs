@@ -87,6 +87,17 @@ namespace Quinmars.AsyncObservable
             return new Using<TResource, TResult>(resourceFactory, observableFactory);
         }
 
+        public static IAsyncObservable<T> Where<T>(this IAsyncObservable<T> source, Func<T, bool> predicate)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (predicate == null)
+                throw new ArgumentNullException(nameof(predicate));
+
+            return new Where<T>(source, predicate);
+        }
+
+
         public static IAsyncObservable<(T1, T2)> Zip<T1, T2>(this IAsyncObservable<T1> source1, IAsyncObservable<T2> source2)
         {
             if (source1 == null)

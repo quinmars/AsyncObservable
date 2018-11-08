@@ -105,6 +105,14 @@ namespace Quinmars.AsyncObservable
             return new FromObservable<T>(source);
         }
 
+        public static IAsyncObservable<T> ToAsyncObservable<T>(this IEnumerable<T> source)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            return new FromEnumerable<T>(source);
+        }
+
         public static ValueTask SubscribeAsync<T>(this IAsyncObservable<T> source, Action<T> onNext = null, Action<Exception> onError = null, Action onCompleted = null)
         {
             if (source == null)

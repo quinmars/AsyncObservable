@@ -8,6 +8,14 @@ namespace Quinmars.AsyncObservable
 {
     public static class AsyncObservable
     {
+        public static IAsyncObservable<T> Concat<T>(this IAsyncObservable<IAsyncObservable<T>> source)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            return new Concat<T>(source);
+        }
+
         public static IAsyncObservable<T> Do<T>(this IAsyncObservable<T> source, Action<T> action)
         {
             if (source == null)

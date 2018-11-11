@@ -5,12 +5,12 @@ Implemented:
  - Range
  - Where
  - Take
-
+ - Skip
+ 
 Missing:
 
  - Aggregate
  - SelectMany
- - Skip
  - Sum
  - Concat(params)
  - Max

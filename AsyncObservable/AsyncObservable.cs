@@ -79,6 +79,22 @@ namespace Quinmars.AsyncObservable
             return new Skip<T>(source, count);
         }
 
+        public static IAsyncObservable<double> Sum(this IAsyncObservable<double> source)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            return new SumDouble(source);
+        }
+
+        public static IAsyncObservable<int> Sum(this IAsyncObservable<int> source)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            return new SumInt32(source);
+        }
+
         public static IAsyncObservable<T> Take<T>(this IAsyncObservable<T> source, int count)
         {
             if (source == null)

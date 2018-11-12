@@ -6,12 +6,12 @@ Implemented:
  - Where
  - Take
  - Skip
+ - Sum
  
 Missing:
 
  - Aggregate
  - SelectMany
- - Sum
  - Concat(params)
  - Max
  - First

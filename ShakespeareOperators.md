@@ -1,5 +1,6 @@
 Implemented:
 
+ - Aggregate
  - Select
  - Return
  - Range
@@ -10,7 +11,6 @@ Implemented:
  
 Missing:
 
- - Aggregate
  - SelectMany
  - Concat(params)
  - Max

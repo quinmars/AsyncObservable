@@ -8,6 +8,18 @@ namespace Quinmars.AsyncObservable
 {
     public static class AsyncObservable
     {
+        public static IAsyncObservable<TResult> Aggregate<TSource, TResult>(this IAsyncObservable<TSource> source, Func<TResult> seed, Func<TResult, TSource, TResult> aggregator)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (seed == null)
+                throw new ArgumentNullException(nameof(seed));
+            if (aggregator == null)
+                throw new ArgumentNullException(nameof(aggregator));
+
+            return new Aggregate<TSource, TResult>(source, seed, aggregator);
+        }
+
         public static IAsyncObservable<T> Concat<T>(this IAsyncObservable<IAsyncObservable<T>> source)
         {
             if (source == null)

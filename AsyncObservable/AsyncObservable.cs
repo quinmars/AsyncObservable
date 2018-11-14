@@ -53,6 +53,22 @@ namespace Quinmars.AsyncObservable
             return new Finally<T>(source, action);
         }
 
+        public static IAsyncObservable<double> Max(this IAsyncObservable<double> source)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            return new MaxDouble(source);
+        }
+
+        public static IAsyncObservable<int> Max(this IAsyncObservable<int> source)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            return new MaxInt32(source);
+        }
+
         public static IAsyncObservable<T> Never<T>()
         {
             return new Never<T>();

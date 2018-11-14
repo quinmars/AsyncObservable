@@ -8,10 +8,10 @@ Implemented:
  - Take
  - Skip
  - Sum
+ - Max
  
 Missing:
 
  - SelectMany
  - Concat(params)
- - Max
  - First

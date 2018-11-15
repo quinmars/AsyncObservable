@@ -9,9 +9,10 @@ Implemented:
  - Skip
  - Sum
  - Max
+ - First
+ - Concat(params)
  
 Missing:
 
  - SelectMany
- - Concat(params)
- - First
+

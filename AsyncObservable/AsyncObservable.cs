@@ -28,6 +28,22 @@ namespace Quinmars.AsyncObservable
             return new Concat<T>(source);
         }
 
+        public static IAsyncObservable<T> Concat<T>(params IAsyncObservable<T>[] sources)
+        {
+            if (sources == null)
+                throw new ArgumentNullException(nameof(sources));
+
+            return new ConcatEnumerable<T>(sources);
+        }
+
+        public static IAsyncObservable<T> Concat<T>(this IEnumerable<IAsyncObservable<T>> sources)
+        {
+            if (sources == null)
+                throw new ArgumentNullException(nameof(sources));
+
+            return new ConcatEnumerable<T>(sources);
+        }
+
         public static IAsyncObservable<T> Do<T>(this IAsyncObservable<T> source, Action<T> action)
         {
             if (source == null)
@@ -131,6 +147,32 @@ namespace Quinmars.AsyncObservable
                 throw new ArgumentOutOfRangeException(nameof(count));
 
             return new Take<T>(source, count);
+        }
+
+        public static async ValueTask<T> ToTask<T>(this IAsyncObservable<T> source)
+        {
+            var value = default(T);
+            var hasValue = false;
+            var error = default(Exception);
+
+            await source.SubscribeAsync(
+                o =>
+                {
+                    value = o;
+                    hasValue = true;
+                },
+                ex =>
+                {
+                    error = ex;
+                });
+
+            if (error != null)
+                throw error;
+
+            if (!hasValue)
+                throw new InvalidOperationException("Sequence has no elements");
+
+            return value;
         }
 
         public static IAsyncObservable<T> Throw<T>(Exception ex)

@@ -17,7 +17,7 @@ namespace Quinmars.AsyncObservable
         readonly Action<Exception> _onError;
         readonly Action _onCompleted;
 
-        ICancelable _upstream;
+        IDisposable _upstream;
 
         public SyncAsyncObserver(Action<T> onNext, Action<Exception> onError, Action onCompleted)
         {
@@ -26,7 +26,7 @@ namespace Quinmars.AsyncObservable
             _onCompleted = onCompleted ?? OnCompletedNop;
         }
 
-        public ValueTask OnSubscribeAsync(ICancelable disposable)
+        public ValueTask OnSubscribeAsync(IDisposable disposable)
         {
             _upstream = disposable;
             return default;

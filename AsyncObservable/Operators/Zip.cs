@@ -150,14 +150,14 @@ namespace Quinmars.AsyncObservable
             public T _value;
             public bool _done;
             public Exception _exception;
-            public ICancelable _dispose;
+            public IDisposable _dispose;
 
             public Observer(SharedSink sink)
             {
                 _sink = sink;
             }
 
-            public ValueTask OnSubscribeAsync(ICancelable disposable)
+            public ValueTask OnSubscribeAsync(IDisposable disposable)
             {
                 _dispose = disposable;
                 return _sink.ForwardSubscribeAsync();

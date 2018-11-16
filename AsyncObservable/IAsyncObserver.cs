@@ -6,7 +6,7 @@ namespace Quinmars.AsyncObservable
 {
     public interface IAsyncObserver<in T>
     {
-        ValueTask OnSubscribeAsync(ICancelable cancelable);
+        ValueTask OnSubscribeAsync(IDisposable cancelable);
         ValueTask OnNextAsync(T value);
         ValueTask OnCompletedAsync();
         ValueTask OnErrorAsync(Exception error);

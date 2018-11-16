@@ -43,7 +43,7 @@ namespace Quinmars.AsyncObservable
 
             async ValueTask ForwardFinalOnSubscribe(IDisposable disposable)
             {
-                _upstream = disposable;
+                SetUpstream(disposable);
                 Dispose();
                 await ForwardFSubscribeAsync(disposable);
                 await ForwardCompletedAsync();

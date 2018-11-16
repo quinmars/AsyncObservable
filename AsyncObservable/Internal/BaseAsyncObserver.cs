@@ -9,7 +9,7 @@ namespace Quinmars.AsyncObservable
     abstract class BaseAsyncObserver<TSource, TResult> : IAsyncObserver<TSource>, IDisposable
     {
         private readonly IAsyncObserver<TResult> _downstream;
-        protected IDisposable _upstream;
+        private IDisposable _upstream;
 
         public bool IsCanceled { get; private set; }
 
@@ -56,6 +56,7 @@ namespace Quinmars.AsyncObservable
         /*
          * Helper
          */
+        protected void SetUpstream(IDisposable upstream) => _upstream = upstream;
         protected ValueTask ForwardFSubscribeAsync(IDisposable d) => _downstream.OnSubscribeAsync(d);
         protected ValueTask ForwardNextAsync(TResult v) => _downstream.OnNextAsync(v);
         protected ValueTask ForwardErrorAsync(Exception ex) => _downstream.OnErrorAsync(ex);

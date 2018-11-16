@@ -32,7 +32,7 @@ namespace Quinmars.AsyncObservable
 
             public async override ValueTask OnNextAsync(IAsyncObservable<T> value)
             {
-                if (IsDisposed)
+                if (IsCanceled)
                     return;
 
                 var inner = new InnerObserver(this);
@@ -51,7 +51,7 @@ namespace Quinmars.AsyncObservable
 
             public ValueTask NextAsync(T value)
             {
-                if (IsDisposed)
+                if (IsCanceled)
                     return default;
 
                 return ForwardNextAsync(value);
@@ -59,7 +59,7 @@ namespace Quinmars.AsyncObservable
 
             public ValueTask ErrorAsync(Exception error)
             {
-                if (IsDisposed)
+                if (IsCanceled)
                     return default;
 
                 return SignalErrorAsync(error);
@@ -72,12 +72,12 @@ namespace Quinmars.AsyncObservable
             }
         }
 
-        class InnerObserver : IAsyncObserver<T>, ICancelable
+        class InnerObserver : IAsyncObserver<T>, IDisposable
         {
             readonly OuterObserver _outer;
             IDisposable _upstream;
 
-            public bool IsDisposed { get; set; }
+            public bool IsCanceled { get; set; }
 
             public InnerObserver(OuterObserver outer)
             {
@@ -92,7 +92,7 @@ namespace Quinmars.AsyncObservable
 
             public ValueTask OnNextAsync(T value)
             {
-                if (IsDisposed)
+                if (IsCanceled)
                     return default;
 
                 return _outer.NextAsync(value);
@@ -100,7 +100,7 @@ namespace Quinmars.AsyncObservable
 
             public ValueTask OnErrorAsync(Exception error)
             {
-                if (IsDisposed)
+                if (IsCanceled)
                     return default;
 
                 return _outer.ErrorAsync(error);
@@ -112,7 +112,7 @@ namespace Quinmars.AsyncObservable
             public void Dispose()
             {
                 Interlocked.Exchange(ref _upstream, null)?.Dispose();
-                IsDisposed = true;
+                IsCanceled = true;
             }
 
         }

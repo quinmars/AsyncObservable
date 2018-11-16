@@ -32,7 +32,7 @@ namespace Quinmars.AsyncObservable
 
             public override ValueTask OnNextAsync(int value)
             {
-                if (!IsDisposed)
+                if (!IsCanceled)
                 {
                     if (_hasValue)
                     {
@@ -52,7 +52,7 @@ namespace Quinmars.AsyncObservable
 
             public override async ValueTask OnCompletedAsync()
             {
-                if (IsDisposed)
+                if (IsCanceled)
                     return;
 
                 if (!_hasValue)
@@ -94,7 +94,7 @@ namespace Quinmars.AsyncObservable
 
             public override ValueTask OnNextAsync(double value)
             {
-                if (!IsDisposed)
+                if (!IsCanceled)
                 {
                     if (_hasValue)
                     {
@@ -115,7 +115,7 @@ namespace Quinmars.AsyncObservable
 
             public override async ValueTask OnCompletedAsync()
             {
-                if (IsDisposed)
+                if (IsCanceled)
                     return;
 
                 if (!_hasValue)

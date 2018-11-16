@@ -34,7 +34,7 @@ namespace Quinmars.AsyncObservable
 
             public override ValueTask OnNextAsync(T value)
             {
-                if (IsDisposed)
+                if (IsCanceled)
                     return default;
 
                 try

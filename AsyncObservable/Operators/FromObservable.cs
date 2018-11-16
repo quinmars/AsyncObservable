@@ -34,7 +34,7 @@ namespace Quinmars.AsyncObservable
          * worth reading writing: 
          * https://github.com/akarnokd/async-enumerable-dotnet/wiki/Writing-operators
          */
-        class Observer : IObserver<T>, ICancelable
+        class Observer : IObserver<T>, IDisposable
         {
             readonly IAsyncObserver<T> _observer;
 
@@ -50,12 +50,12 @@ namespace Quinmars.AsyncObservable
                 _observer = observer;
             }
 
-            public bool IsDisposed { get; set; }
+            public bool IsCanceled { get; set; }
 
             public void Dispose()
             {
                 Interlocked.Exchange(ref _upstream, null)?.Dispose();
-                IsDisposed = true;
+                IsCanceled = true;
             }
 
             public async ValueTask Run()
@@ -68,7 +68,7 @@ namespace Quinmars.AsyncObservable
                 {
                     while (true)
                     {
-                        if (IsDisposed)
+                        if (IsCanceled)
                             goto Dispose;
 
                         done = Volatile.Read(ref _done);
@@ -98,7 +98,7 @@ namespace Quinmars.AsyncObservable
                 } 
 
             Done:
-                if (!IsDisposed)
+                if (!IsCanceled)
                 {
                     if (_error == null)
                         await _observer.OnCompletedAsync();
@@ -121,7 +121,7 @@ namespace Quinmars.AsyncObservable
             /*
              * IObserver implementation
              */
-        public void OnCompleted()
+            public void OnCompleted()
             {
                 _done = true;
                 Signal();

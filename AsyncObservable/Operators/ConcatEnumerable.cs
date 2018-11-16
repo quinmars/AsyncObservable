@@ -53,12 +53,12 @@ namespace Quinmars.AsyncObservable
             await observer.OnFinallyAsync();
         }
 
-        class Observer : IAsyncObserver<T>, ICancelable
+        class Observer : IAsyncObserver<T>, IDisposable
         {
             readonly IAsyncObserver<T> _downstream;
             IDisposable _upstream;
 
-            public bool IsDisposed { get; set; }
+            public bool IsCanceled { get; set; }
             public bool Faulted { get; set; }
 
             public Observer(IAsyncObserver<T> observer)
@@ -74,7 +74,7 @@ namespace Quinmars.AsyncObservable
 
             public ValueTask OnNextAsync(T value)
             {
-                if (IsDisposed)
+                if (IsCanceled)
                     return default;
 
                 return _downstream.OnNextAsync(value);
@@ -82,7 +82,7 @@ namespace Quinmars.AsyncObservable
 
             public ValueTask OnErrorAsync(Exception error)
             {
-                if (IsDisposed)
+                if (IsCanceled)
                     return default;
 
                 Faulted = true;
@@ -95,7 +95,7 @@ namespace Quinmars.AsyncObservable
             public void Dispose()
             {
                 Interlocked.Exchange(ref _upstream, null)?.Dispose();
-                IsDisposed = true;
+                IsCanceled = true;
             }
 
         }

@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace Quinmars.AsyncObservable
 {
-    abstract class BaseAsyncObserver<TSource, TResult> : IAsyncObserver<TSource>, ICancelable
+    abstract class BaseAsyncObserver<TSource, TResult> : IAsyncObserver<TSource>, IDisposable
     {
         private readonly IAsyncObserver<TResult> _downstream;
         protected IDisposable _upstream;
 
-        public bool IsDisposed { get; protected set; }
+        public bool IsCanceled { get; private set; }
 
         public BaseAsyncObserver(IAsyncObserver<TResult> observer)
         {
@@ -28,7 +28,7 @@ namespace Quinmars.AsyncObservable
 
         public virtual ValueTask OnErrorAsync(Exception error)
         {
-            if (IsDisposed)
+            if (IsCanceled)
                 return default;
 
             return _downstream.OnErrorAsync(error);
@@ -36,7 +36,7 @@ namespace Quinmars.AsyncObservable
 
         public virtual ValueTask OnCompletedAsync()
         {
-            if (IsDisposed)
+            if (IsCanceled)
                 return default;
 
             return _downstream.OnCompletedAsync();
@@ -49,7 +49,7 @@ namespace Quinmars.AsyncObservable
 
         public virtual void Dispose()
         {
-            IsDisposed = true;
+            IsCanceled = true;
             _upstream.Dispose();
         }
 
@@ -83,7 +83,7 @@ namespace Quinmars.AsyncObservable
 
         public override ValueTask OnNextAsync(T value)
         {
-            if (IsDisposed)
+            if (IsCanceled)
                 return default;
 
             return ForwardNextAsync(value);

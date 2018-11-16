@@ -42,7 +42,7 @@ namespace Quinmars.AsyncObservable
 
             public override ValueTask OnNextAsync(TSource value)
             {
-                if (IsDisposed)
+                if (IsCanceled)
                     return default;
 
                 TResult acc;
@@ -75,7 +75,7 @@ namespace Quinmars.AsyncObservable
 
             public override async ValueTask OnCompletedAsync()
             {
-                if (IsDisposed)
+                if (IsCanceled)
                     return;
                 await ForwardNextAsync(_accumulation);
                 await ForwardCompletedAsync();

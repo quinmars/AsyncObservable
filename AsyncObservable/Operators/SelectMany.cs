@@ -34,7 +34,7 @@ namespace Quinmars.AsyncObservable
 
             public override ValueTask OnNextAsync(TSource value)
             {
-                if (IsDisposed)
+                if (IsCanceled)
                     return default;
 
                 IEnumerable<TResult> enumerable;
@@ -56,7 +56,7 @@ namespace Quinmars.AsyncObservable
                 {
                     foreach (var item in enumerable)
                     {
-                        if (IsDisposed)
+                        if (IsCanceled)
                             return;
 
                         await ForwardNextAsync(item);

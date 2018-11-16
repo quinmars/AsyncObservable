@@ -35,7 +35,7 @@ namespace Quinmars.AsyncObservable
             await t;
         }
 
-        class SharedSink : ICancelable
+        class SharedSink : IDisposable
         {
             readonly IAsyncObserver<(T1, T2)> _downstream;
 
@@ -131,7 +131,7 @@ namespace Quinmars.AsyncObservable
             }
 
             int _disposLock;
-            public bool IsDisposed => _disposLock != 0;
+            public bool IsCanceled => _disposLock != 0;
 
             public void Dispose()
             {

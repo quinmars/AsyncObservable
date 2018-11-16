@@ -44,11 +44,10 @@ namespace Quinmars.AsyncObservable
                 }
                 catch (Exception ex)
                 {
-                    Dispose();
-                    return _downstream.OnErrorAsync(ex);
+                    return SignalErrorAsync(ex);
                 }
 
-                return _downstream.OnNextAsync(value);
+                return ForwardNextAsync(value);
             }
         }
     }

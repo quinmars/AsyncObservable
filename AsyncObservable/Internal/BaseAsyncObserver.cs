@@ -8,7 +8,7 @@ namespace Quinmars.AsyncObservable
 {
     abstract class BaseAsyncObserver<TSource, TResult> : IAsyncObserver<TSource>, ICancelable
     {
-        protected readonly IAsyncObserver<TResult> _downstream;
+        private readonly IAsyncObserver<TResult> _downstream;
         protected ICancelable _upstream;
 
         public bool IsDisposed { get; protected set; }
@@ -52,6 +52,27 @@ namespace Quinmars.AsyncObservable
             IsDisposed = true;
             _upstream.Dispose();
         }
+
+        /*
+         * Helper
+         */
+        protected ValueTask ForwardFSubscribeAsync(ICancelable d) => _downstream.OnSubscibeAsync(d);
+        protected ValueTask ForwardNextAsync(TResult v) => _downstream.OnNextAsync(v);
+        protected ValueTask ForwardErrorAsync(Exception ex) => _downstream.OnErrorAsync(ex);
+        protected ValueTask ForwardCompletedAsync() => _downstream.OnCompletedAsync();
+        protected ValueTask ForwardFinallyAsync() => _downstream.OnFinallyAsync();
+
+        protected ValueTask SignalErrorAsync(Exception ex)
+        {
+            Dispose();
+            return _downstream.OnErrorAsync(ex);
+        }
+
+        protected ValueTask SignalCompletedAsync()
+        {
+            Dispose();
+            return _downstream.OnCompletedAsync();
+        }
     }
 
     class BaseAsyncObserver<T> : BaseAsyncObserver<T, T>
@@ -65,7 +86,7 @@ namespace Quinmars.AsyncObservable
             if (IsDisposed)
                 return default;
 
-            return _downstream.OnNextAsync(value);
+            return ForwardNextAsync(value);
         }
     }
 }

@@ -57,12 +57,12 @@ namespace Quinmars.AsyncObservable
 
                 if (!_hasValue)
                 {
-                    await _downstream.OnErrorAsync(new InvalidOperationException("Sequence contains no elements!"));
+                    await ForwardErrorAsync(new InvalidOperationException("Sequence contains no elements!"));
                     return;
                 }
 
-                await _downstream.OnNextAsync(_max);
-                await _downstream.OnCompletedAsync();
+                await ForwardNextAsync(_max);
+                await ForwardCompletedAsync();
             }
         }
     }
@@ -120,12 +120,12 @@ namespace Quinmars.AsyncObservable
 
                 if (!_hasValue)
                 {
-                    await _downstream.OnErrorAsync(new InvalidOperationException("Sequence contains no elements!"));
+                    await ForwardErrorAsync(new InvalidOperationException("Sequence contains no elements!"));
                     return;
                 }
 
-                await _downstream.OnNextAsync(_max);
-                await _downstream.OnCompletedAsync();
+                await ForwardNextAsync(_max);
+                await ForwardCompletedAsync();
             }
         }
     }

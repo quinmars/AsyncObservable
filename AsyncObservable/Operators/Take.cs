@@ -45,8 +45,8 @@ namespace Quinmars.AsyncObservable
             {
                 _upstream = disposable;
                 Dispose();
-                await _downstream.OnSubscibeAsync(disposable);
-                await _downstream.OnCompletedAsync();
+                await ForwardFSubscribeAsync(disposable);
+                await ForwardCompletedAsync();
             }
 
             public override ValueTask OnNextAsync(T value)
@@ -58,7 +58,7 @@ namespace Quinmars.AsyncObservable
                 else if (_remaining > 1)
                 {
                     _remaining--;
-                    return _downstream.OnNextAsync(value);
+                    return ForwardNextAsync(value);
                 }
 
                 return default;
@@ -69,17 +69,15 @@ namespace Quinmars.AsyncObservable
                 try
                 {
                     _remaining--;
-                    await _downstream.OnNextAsync(value);
+                    await ForwardNextAsync(value);
                 }
                 catch (Exception ex)
                 {
-                    Dispose();
-                    await _downstream.OnErrorAsync(ex);
+                    await SignalErrorAsync(ex);
                     return;
                 }
 
-                Dispose();
-                await _downstream.OnCompletedAsync();
+                await SignalCompletedAsync();
             }
         }
     }

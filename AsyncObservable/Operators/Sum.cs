@@ -42,7 +42,7 @@ namespace Quinmars.AsyncObservable
                     }
                     catch (Exception error)
                     {
-                        return _downstream.OnErrorAsync(error);
+                        return ForwardErrorAsync(error);
                     }
                 }
                 return default;
@@ -52,8 +52,8 @@ namespace Quinmars.AsyncObservable
             {
                 if (IsDisposed)
                     return;
-                await _downstream.OnNextAsync(_sum);
-                await _downstream.OnCompletedAsync();
+                await ForwardNextAsync(_sum);
+                await ForwardCompletedAsync();
             }
         }
     }
@@ -93,8 +93,8 @@ namespace Quinmars.AsyncObservable
             {
                 if (IsDisposed)
                     return;
-                await _downstream.OnNextAsync(_sum);
-                await _downstream.OnCompletedAsync();
+                await ForwardNextAsync(_sum);
+                await ForwardCompletedAsync();
             }
         }
     }

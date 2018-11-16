@@ -55,8 +55,7 @@ namespace Quinmars.AsyncObservable
                     }
                     catch (Exception error)
                     {
-                        Dispose();
-                        return _downstream.OnErrorAsync(error);
+                        return SignalErrorAsync(error);
                     }
                 }
                 else
@@ -68,8 +67,7 @@ namespace Quinmars.AsyncObservable
                 }
                 catch (Exception error)
                 {
-                    Dispose();
-                    return _downstream.OnErrorAsync(error);
+                    return SignalErrorAsync(error);
                 }
 
                 return default;
@@ -79,8 +77,8 @@ namespace Quinmars.AsyncObservable
             {
                 if (IsDisposed)
                     return;
-                await _downstream.OnNextAsync(_accumulation);
-                await _downstream.OnCompletedAsync();
+                await ForwardNextAsync(_accumulation);
+                await ForwardCompletedAsync();
             }
         }
     }

@@ -44,27 +44,25 @@ namespace Quinmars.AsyncObservable
                 catch (Exception error)
                 {
                     _inner = null;
-                    Dispose();
-                    await _downstream.OnErrorAsync(error);
+                    await SignalErrorAsync(error);
                 }
                 _inner = null;
             }
 
-            public ValueTask ForwardNextAsync(T value)
+            public ValueTask NextAsync(T value)
             {
                 if (IsDisposed)
                     return default;
 
-                return _downstream.OnNextAsync(value);
+                return ForwardNextAsync(value);
             }
 
-            public ValueTask ForwardErrorAsync(Exception error)
+            public ValueTask ErrorAsync(Exception error)
             {
                 if (IsDisposed)
                     return default;
 
-                base.Dispose();
-                return _downstream.OnErrorAsync(error);
+                return SignalErrorAsync(error);
             }
 
             public override void Dispose()
@@ -97,7 +95,7 @@ namespace Quinmars.AsyncObservable
                 if (IsDisposed)
                     return default;
 
-                return _outer.ForwardNextAsync(value);
+                return _outer.NextAsync(value);
             }
 
             public ValueTask OnErrorAsync(Exception error)
@@ -105,7 +103,7 @@ namespace Quinmars.AsyncObservable
                 if (IsDisposed)
                     return default;
 
-                return _outer.ForwardErrorAsync(error);
+                return _outer.ErrorAsync(error);
             }
 
             public ValueTask OnCompletedAsync() => default;

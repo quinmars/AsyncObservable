@@ -38,7 +38,7 @@ namespace Quinmars.AsyncObservable
                 if (IsDisposed)
                     return default;
                 else if (_remaining == 0)
-                    return _downstream.OnNextAsync(value);
+                    return ForwardNextAsync(value);
                 else
                     _remaining--;
 

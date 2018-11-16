@@ -115,7 +115,7 @@ namespace Quinmars.AsyncObservable
 
             async ValueTask ForwardSubscribeCoreAsync()
             {
-                await _downstream.OnSubscibeAsync(this);
+                await _downstream.OnSubscribeAsync(this);
                 _tcsSubscribe.SetResult(true);
             }
 
@@ -157,7 +157,7 @@ namespace Quinmars.AsyncObservable
                 _sink = sink;
             }
 
-            public ValueTask OnSubscibeAsync(ICancelable disposable)
+            public ValueTask OnSubscribeAsync(ICancelable disposable)
             {
                 _dispose = disposable;
                 return _sink.ForwardSubscribeAsync();

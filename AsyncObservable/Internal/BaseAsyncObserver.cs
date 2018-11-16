@@ -18,10 +18,10 @@ namespace Quinmars.AsyncObservable
             _downstream = observer;
         }
 
-        public virtual ValueTask OnSubscibeAsync(ICancelable disposable)
+        public virtual ValueTask OnSubscribeAsync(ICancelable disposable)
         {
             _upstream = disposable;
-            return _downstream.OnSubscibeAsync(this);
+            return _downstream.OnSubscribeAsync(this);
         }
 
         public abstract ValueTask OnNextAsync(TSource value);
@@ -56,7 +56,7 @@ namespace Quinmars.AsyncObservable
         /*
          * Helper
          */
-        protected ValueTask ForwardFSubscribeAsync(ICancelable d) => _downstream.OnSubscibeAsync(d);
+        protected ValueTask ForwardFSubscribeAsync(ICancelable d) => _downstream.OnSubscribeAsync(d);
         protected ValueTask ForwardNextAsync(TResult v) => _downstream.OnNextAsync(v);
         protected ValueTask ForwardErrorAsync(Exception ex) => _downstream.OnErrorAsync(ex);
         protected ValueTask ForwardCompletedAsync() => _downstream.OnCompletedAsync();

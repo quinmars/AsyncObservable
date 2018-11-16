@@ -84,7 +84,7 @@ namespace Quinmars.AsyncObservable
                 _outer = outer;
             }
 
-            public ValueTask OnSubscibeAsync(ICancelable cancelable)
+            public ValueTask OnSubscribeAsync(ICancelable cancelable)
             {
                 _upstream = cancelable;
                 return default;

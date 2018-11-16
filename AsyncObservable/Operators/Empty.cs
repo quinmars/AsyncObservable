@@ -12,7 +12,7 @@ namespace Quinmars.AsyncObservable
         {
             var disposable = new BooleanDisposable();
 
-            await observer.OnSubscibeAsync(disposable);
+            await observer.OnSubscribeAsync(disposable);
 
             if (!disposable.IsDisposed)
                 await observer.OnCompletedAsync();

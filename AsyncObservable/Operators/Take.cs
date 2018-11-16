@@ -33,12 +33,12 @@ namespace Quinmars.AsyncObservable
                 _remaining = count;
             }
 
-            public override ValueTask OnSubscibeAsync(ICancelable disposable)
+            public override ValueTask OnSubscribeAsync(ICancelable disposable)
             {
                 if (_remaining == 0)
                     return ForwardFinalOnSubscribe(disposable);
 
-                return base.OnSubscibeAsync(disposable);
+                return base.OnSubscribeAsync(disposable);
             }
 
             async ValueTask ForwardFinalOnSubscribe(ICancelable disposable)

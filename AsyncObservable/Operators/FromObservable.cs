@@ -60,7 +60,7 @@ namespace Quinmars.AsyncObservable
 
             public async ValueTask Run()
             {
-                await _observer.OnSubscibeAsync(this);
+                await _observer.OnSubscribeAsync(this);
 
                 var done = false;
 

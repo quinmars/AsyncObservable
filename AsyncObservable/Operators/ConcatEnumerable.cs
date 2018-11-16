@@ -20,7 +20,7 @@ namespace Quinmars.AsyncObservable
         {
             var disposable = new SerialDisposable();
 
-            await observer.OnSubscibeAsync(disposable);
+            await observer.OnSubscribeAsync(disposable);
 
             foreach (var obs in _observables)
             {
@@ -66,7 +66,7 @@ namespace Quinmars.AsyncObservable
                 _downstream = observer;
             }
 
-            public ValueTask OnSubscibeAsync(ICancelable cancelable)
+            public ValueTask OnSubscribeAsync(ICancelable cancelable)
             {
                 _upstream = cancelable;
                 return default;

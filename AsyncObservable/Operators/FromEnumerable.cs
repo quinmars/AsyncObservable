@@ -19,7 +19,7 @@ namespace Quinmars.AsyncObservable
         {
             var disposable = new BooleanDisposable();
 
-            await observer.OnSubscibeAsync(disposable);
+            await observer.OnSubscribeAsync(disposable);
 
             foreach (var item in _enumerable)
             {

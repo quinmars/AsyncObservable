@@ -26,7 +26,7 @@ namespace Quinmars.AsyncObservable
             _onCompleted = onCompleted ?? OnCompletedNop;
         }
 
-        public ValueTask OnSubscibeAsync(ICancelable disposable)
+        public ValueTask OnSubscribeAsync(ICancelable disposable)
         {
             _upstream = disposable;
             return default;

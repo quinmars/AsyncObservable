@@ -113,6 +113,16 @@ namespace Quinmars.AsyncObservable
             return new Select<TSource, TResult>(source, selector);
         }
 
+        public static IAsyncObservable<TResult> SelectMany<TSource, TResult>(this IAsyncObservable<TSource> source, Func<TSource, IEnumerable<TResult>> selector)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (selector == null)
+                throw new ArgumentNullException(nameof(selector));
+
+            return new SelectMany<TSource, TResult>(source, selector);
+        }
+
         public static IAsyncObservable<T> Skip<T>(this IAsyncObservable<T> source, int count)
         {
             if (source == null)

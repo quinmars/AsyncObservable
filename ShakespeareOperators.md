@@ -11,8 +11,9 @@ Implemented:
  - Max
  - First
  - Concat(params)
+ - SelectMany
  
 Missing:
 
- - SelectMany
+
 

@@ -1,0 +1,74 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Quinmars.AsyncObservable
+{
+    class SelectMany<TSource, TResult> : IAsyncObservable<TResult>
+    {
+        readonly IAsyncObservable<TSource> _source;
+        readonly Func<TSource, IEnumerable<TResult>> _selector;
+
+        public SelectMany(IAsyncObservable<TSource> source, Func<TSource, IEnumerable<TResult>> selector)
+        {
+            _source = source;
+            _selector = selector;
+        }
+
+        public ValueTask SubscribeAsync(IAsyncObserver<TResult> observer)
+        {
+            var o = new Observer(observer, _selector);
+            return _source.SubscribeAsync(o);
+        }
+
+        class Observer : BaseAsyncObserver<TSource, TResult>
+        {
+            readonly Func<TSource, IEnumerable<TResult>> _selector;
+
+            public Observer(IAsyncObserver<TResult> observer, Func<TSource, IEnumerable<TResult>> selector)
+                : base(observer)
+            {
+                _selector = selector;
+            }
+
+            public override ValueTask OnNextAsync(TSource value)
+            {
+                if (IsDisposed)
+                    return default;
+
+                IEnumerable<TResult> enumerable;
+                try
+                {
+                    enumerable = _selector(value);
+                }
+                catch (Exception ex)
+                {
+                    Dispose();
+                    return _downstream.OnErrorAsync(ex);
+                }
+
+                return Forward(enumerable);
+            }
+
+            private async ValueTask Forward(IEnumerable<TResult> enumerable)
+            {
+                try
+                {
+                    foreach (var item in enumerable)
+                    {
+                        if (IsDisposed)
+                            return;
+
+                        await _downstream.OnNextAsync(item);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Dispose();
+                    await _downstream.OnErrorAsync(ex);
+                }
+            }
+        }
+    }
+}

@@ -24,7 +24,7 @@ namespace Quinmars.AsyncObservable
             return _source.SubscribeAsync(o);
         }
 
-        class Observer : BaseAsyncObserver<TSource, TResult>
+        class Observer : ForwardingAsyncObserver<TSource, TResult>
         {
             readonly Func<TResult> _seed;
             readonly Func<TResult, TSource, TResult> _aggregator;

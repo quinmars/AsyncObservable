@@ -20,7 +20,7 @@ namespace Quinmars.AsyncObservable
             return _source.SubscribeAsync(o);
         }
 
-        class Observer : BaseAsyncObserver<int>
+        class Observer : ForwardingAsyncObserver<int>
         {
             int _sum;
 
@@ -73,7 +73,7 @@ namespace Quinmars.AsyncObservable
             return _source.SubscribeAsync(o);
         }
 
-        class Observer : BaseAsyncObserver<double>
+        class Observer : ForwardingAsyncObserver<double>
         {
             double _sum;
 

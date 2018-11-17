@@ -20,7 +20,7 @@ namespace Quinmars.AsyncObservable
             return _source.SubscribeAsync(o);
         }
 
-        class Observer : BaseAsyncObserver<int>
+        class Observer : ForwardingAsyncObserver<int>
         {
             bool _hasValue;
             int _max;
@@ -82,7 +82,7 @@ namespace Quinmars.AsyncObservable
             return _source.SubscribeAsync(o);
         }
 
-        class Observer : BaseAsyncObserver<double>
+        class Observer : ForwardingAsyncObserver<double>
         {
             bool _hasValue;
             double _max;

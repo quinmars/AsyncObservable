@@ -23,7 +23,7 @@ namespace Quinmars.AsyncObservable
             return _source.SubscribeAsync(o);
         }
 
-        class Observer : BaseAsyncObserver<T>
+        class Observer : ForwardingAsyncObserver<T>
         {
             readonly Action _action;
 

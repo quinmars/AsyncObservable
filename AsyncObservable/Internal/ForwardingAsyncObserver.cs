@@ -6,21 +6,18 @@ using System.Threading.Tasks;
 
 namespace Quinmars.AsyncObservable
 {
-    abstract class BaseAsyncObserver<TSource, TResult> : IAsyncObserver<TSource>, IDisposable
+    abstract class ForwardingAsyncObserver<TSource, TResult> : AsyncObserverBase, IAsyncObserver<TSource>
     {
         private readonly IAsyncObserver<TResult> _downstream;
-        private IDisposable _upstream;
 
-        public bool IsCanceled { get; private set; }
-
-        public BaseAsyncObserver(IAsyncObserver<TResult> observer)
+        public ForwardingAsyncObserver(IAsyncObserver<TResult> observer)
         {
             _downstream = observer;
         }
 
         public virtual ValueTask OnSubscribeAsync(IDisposable disposable)
         {
-            _upstream = disposable;
+            SetUpstream(disposable);
             return _downstream.OnSubscribeAsync(this);
         }
 
@@ -47,16 +44,9 @@ namespace Quinmars.AsyncObservable
             return _downstream.OnFinallyAsync();
         }
 
-        public virtual void Dispose()
-        {
-            IsCanceled = true;
-            _upstream.Dispose();
-        }
-
         /*
          * Helper
          */
-        protected void SetUpstream(IDisposable upstream) => _upstream = upstream;
         protected ValueTask ForwardFSubscribeAsync(IDisposable d) => _downstream.OnSubscribeAsync(d);
         protected ValueTask ForwardNextAsync(TResult v) => _downstream.OnNextAsync(v);
         protected ValueTask ForwardErrorAsync(Exception ex) => _downstream.OnErrorAsync(ex);
@@ -76,9 +66,9 @@ namespace Quinmars.AsyncObservable
         }
     }
 
-    class BaseAsyncObserver<T> : BaseAsyncObserver<T, T>
+    class ForwardingAsyncObserver<T> : ForwardingAsyncObserver<T, T>
     {
-        public BaseAsyncObserver(IAsyncObserver<T> observer) : base(observer)
+        public ForwardingAsyncObserver(IAsyncObserver<T> observer) : base(observer)
         {
         }
 

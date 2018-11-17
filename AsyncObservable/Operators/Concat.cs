@@ -22,7 +22,7 @@ namespace Quinmars.AsyncObservable
             return _source.SubscribeAsync(o);
         }
 
-        class OuterObserver : BaseAsyncObserver<IAsyncObservable<T>, T>
+        class OuterObserver : ForwardingAsyncObserver<IAsyncObservable<T>, T>
         {
             InnerObserver _inner;
 

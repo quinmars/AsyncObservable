@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.28010.2046
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsyncObservable", "AsyncObservable\AsyncObservable.csproj", "{3D6C09D6-ED8A-46B1-AB0C-9370292E5FB9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncObservable.Tests", "AsyncObservable.Tests\AsyncObservable.Tests.csproj", "{434A525B-1147-467D-A989-405F5128B69D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsyncObservable.Tests", "AsyncObservable.Tests\AsyncObservable.Tests.csproj", "{434A525B-1147-467D-A989-405F5128B69D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

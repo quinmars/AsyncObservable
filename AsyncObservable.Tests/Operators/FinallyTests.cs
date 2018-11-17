@@ -94,5 +94,37 @@ namespace Tests
             result
                 .Should().Be("E12");
         }
+
+        [Fact]
+        public async Task Finally6()
+        {
+            string result = "";
+            bool rethrown = false;
+
+            try
+            {
+                await AsyncObservable.Empty<int>()
+                    .Finally(() =>
+                    {
+                        result += "1";
+                        throw new Exception();
+                    })
+                    .Finally(() =>
+                    {
+                        result += "2";
+                        throw new Exception();
+                    })
+                    .SubscribeAsync();
+            }
+            catch
+            {
+                rethrown = true;
+            }
+
+            rethrown
+                .Should().Be(true);
+            result
+                .Should().Be("12");
+        }
     }
 }

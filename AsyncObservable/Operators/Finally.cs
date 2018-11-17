@@ -33,10 +33,16 @@ namespace Quinmars.AsyncObservable
                 _action = action;
             }
 
-            public override ValueTask OnFinallyAsync()
+            public override async ValueTask OnFinallyAsync()
             {
-                _action();
-                return ForwardFinallyAsync();
+                try
+                {
+                    _action();
+                }
+                finally
+                {
+                    await ForwardFinallyAsync();
+                }
             }
         }
     }

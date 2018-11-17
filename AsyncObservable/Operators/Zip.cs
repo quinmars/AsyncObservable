@@ -137,20 +137,19 @@ namespace Quinmars.AsyncObservable
             {
                 if (Interlocked.Exchange(ref _disposLock, 1) != 1)
                 { 
-                    _upstream1._dispose.Dispose();
-                    _upstream2._dispose.Dispose();
+                    _upstream1.Dispose();
+                    _upstream2.Dispose();
                 }
             }
         }
 
-        class Observer<T> : IAsyncObserver<T>
+        class Observer<T> : AsyncObserverBase, IAsyncObserver<T>
         {
             readonly SharedSink _sink;
 
             public T _value;
             public bool _done;
             public Exception _exception;
-            public IDisposable _dispose;
 
             public Observer(SharedSink sink)
             {
@@ -159,7 +158,7 @@ namespace Quinmars.AsyncObservable
 
             public ValueTask OnSubscribeAsync(IDisposable disposable)
             {
-                _dispose = disposable;
+                SetUpstream(disposable);
                 return _sink.ForwardSubscribeAsync();
             }
 

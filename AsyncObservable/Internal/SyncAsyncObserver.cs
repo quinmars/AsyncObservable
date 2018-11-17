@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Quinmars.AsyncObservable
 {
-    class SyncAsyncObserver<T> : IAsyncObserver<T>, IDisposable
+    class SyncAsyncObserver<T> : AsyncObserverBase, IAsyncObserver<T>
     {
         static readonly Action<T> OnNextNop = v => { };
         static readonly Action<Exception> OnErrorNop = ex => throw ex;
@@ -16,8 +16,6 @@ namespace Quinmars.AsyncObservable
         readonly Action<T> _onNext;
         readonly Action<Exception> _onError;
         readonly Action _onCompleted;
-
-        IDisposable _upstream;
 
         public SyncAsyncObserver(Action<T> onNext, Action<Exception> onError, Action onCompleted)
         {
@@ -28,7 +26,7 @@ namespace Quinmars.AsyncObservable
 
         public ValueTask OnSubscribeAsync(IDisposable disposable)
         {
-            _upstream = disposable;
+            SetUpstream(disposable);
             return default;
         }
 
@@ -65,17 +63,6 @@ namespace Quinmars.AsyncObservable
             return default;
         }
 
-        public bool IsCanceled { get; private set; }
-
-        public ValueTask OnFinallyAsync()
-        {
-            return default;
-        }
-
-        public void Dispose()
-        {
-            IsCanceled = true;
-            _upstream.Dispose();
-        }
+        public ValueTask OnFinallyAsync() => default;
     }
 }

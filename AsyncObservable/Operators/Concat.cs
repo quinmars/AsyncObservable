@@ -72,12 +72,9 @@ namespace Quinmars.AsyncObservable
             }
         }
 
-        class InnerObserver : IAsyncObserver<T>, IDisposable
+        class InnerObserver : AsyncObserverBase, IAsyncObserver<T>
         {
             readonly OuterObserver _outer;
-            IDisposable _upstream;
-
-            public bool IsCanceled { get; set; }
 
             public InnerObserver(OuterObserver outer)
             {
@@ -86,7 +83,7 @@ namespace Quinmars.AsyncObservable
 
             public ValueTask OnSubscribeAsync(IDisposable cancelable)
             {
-                _upstream = cancelable;
+                SetUpstream(cancelable);
                 return default;
             }
 
@@ -108,13 +105,6 @@ namespace Quinmars.AsyncObservable
 
             public ValueTask OnCompletedAsync() => default;
             public ValueTask OnFinallyAsync() => default;
-
-            public void Dispose()
-            {
-                Interlocked.Exchange(ref _upstream, null)?.Dispose();
-                IsCanceled = true;
-            }
-
         }
     }
 }

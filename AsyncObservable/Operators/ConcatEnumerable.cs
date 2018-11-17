@@ -53,12 +53,10 @@ namespace Quinmars.AsyncObservable
             await observer.OnFinallyAsync();
         }
 
-        class Observer : IAsyncObserver<T>, IDisposable
+        class Observer : AsyncObserverBase, IAsyncObserver<T>
         {
             readonly IAsyncObserver<T> _downstream;
-            IDisposable _upstream;
 
-            public bool IsCanceled { get; set; }
             public bool Faulted { get; set; }
 
             public Observer(IAsyncObserver<T> observer)
@@ -68,7 +66,7 @@ namespace Quinmars.AsyncObservable
 
             public ValueTask OnSubscribeAsync(IDisposable cancelable)
             {
-                _upstream = cancelable;
+                SetUpstream(cancelable);
                 return default;
             }
 
@@ -91,13 +89,6 @@ namespace Quinmars.AsyncObservable
 
             public ValueTask OnCompletedAsync() => default;
             public ValueTask OnFinallyAsync() => default;
-
-            public void Dispose()
-            {
-                Interlocked.Exchange(ref _upstream, null)?.Dispose();
-                IsCanceled = true;
-            }
-
         }
     }
 }

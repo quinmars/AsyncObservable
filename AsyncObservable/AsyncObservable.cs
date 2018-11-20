@@ -69,6 +69,25 @@ namespace Quinmars.AsyncObservable
             return new Finally<T>(source, action);
         }
 
+        public static ValueTask<T> FirstAsync<T>(this IAsyncObservable<T> source)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            var observer = new FirstAsyncObserver<T>();
+            return source.ToTask(observer);
+        }
+
+        public static ValueTask<T> LastAsync<T>(this IAsyncObservable<T> source)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            var observer = new LastAsyncObserver<T>();
+            return source.ToTask(observer);
+        }
+
+
         public static IAsyncObservable<double> Max(this IAsyncObservable<double> source)
         {
             if (source == null)
@@ -157,32 +176,6 @@ namespace Quinmars.AsyncObservable
                 throw new ArgumentOutOfRangeException(nameof(count));
 
             return new Take<T>(source, count);
-        }
-
-        public static async ValueTask<T> ToTask<T>(this IAsyncObservable<T> source)
-        {
-            var value = default(T);
-            var hasValue = false;
-            var error = default(Exception);
-
-            await source.SubscribeAsync(
-                o =>
-                {
-                    value = o;
-                    hasValue = true;
-                },
-                ex =>
-                {
-                    error = ex;
-                });
-
-            if (error != null)
-                throw error;
-
-            if (!hasValue)
-                throw new InvalidOperationException("Sequence has no elements");
-
-            return value;
         }
 
         public static IAsyncObservable<T> Throw<T>(Exception ex)

@@ -7,7 +7,7 @@ namespace Quinmars.AsyncObservable
 {
     static class ToTaskAsyncObserver
     {
-        public static async ValueTask<T> ToTask<T>(this IAsyncObservable<T> source, ToTaskAsyncObserver<T> observer)
+        public static async ValueTask<TResult> ToTask<TSource, TResult>(this IAsyncObservable<TSource> source, ToTaskAsyncObserver<TSource, TResult> observer)
         {
             await source.SubscribeAsync(observer);
             if (observer.Error != null)
@@ -20,13 +20,13 @@ namespace Quinmars.AsyncObservable
         }
     }
 
-    abstract class ToTaskAsyncObserver<T> : AsyncObserverBase, IAsyncObserver<T>
+    abstract class ToTaskAsyncObserver<TSource, TResult> : AsyncObserverBase, IAsyncObserver<TSource>
     {
         //
         // Cancellation support should be added some day
         //
         public Exception Error { get; protected set; }
-        public T Value { get; protected set; }
+        public TResult Value { get; protected set; }
         public bool HasValue { get; protected set; }
 
         public ValueTask OnSubscribeAsync(IDisposable cancelable)
@@ -35,7 +35,7 @@ namespace Quinmars.AsyncObservable
             return default;
         }
 
-        public abstract ValueTask OnNextAsync(T value);
+        public abstract ValueTask OnNextAsync(TSource value);
 
         public ValueTask OnErrorAsync(Exception error)
         {

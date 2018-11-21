@@ -20,6 +20,37 @@ namespace Quinmars.AsyncObservable
             return new Aggregate<TSource, TResult>(source, seed, aggregator);
         }
 
+        public static ValueTask<bool> AllAsync<T>(this IAsyncObservable<T> source, Func<T, bool> predicate)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (predicate == null)
+                throw new ArgumentNullException(nameof(source));
+
+            var observer = new AllAsyncObserver<T>(predicate);
+            return source.ToTask(observer);
+        }
+
+        public static ValueTask<bool> AnyAsync<T>(this IAsyncObservable<T> source)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            var observer = new AnyAsyncObserver<T>();
+            return source.ToTask(observer);
+        }
+
+        public static ValueTask<bool> AnyAsync<T>(this IAsyncObservable<T> source, Func<T, bool> predicate)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (predicate == null)
+                throw new ArgumentNullException(nameof(source));
+
+            var observer = new AnyPredicateAsyncObserver<T>(predicate);
+            return source.ToTask(observer);
+        }
+
         public static IAsyncObservable<T> Concat<T>(this IAsyncObservable<IAsyncObservable<T>> source)
         {
             if (source == null)

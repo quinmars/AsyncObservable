@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Quinmars.AsyncObservable
 {
-    class FirstAsyncObserver<T> : ToTaskAsyncObserver<T>
+    class FirstAsyncObserver<T> : ToTaskAsyncObserver<T, T>
     {
         public override ValueTask OnNextAsync(T value)
         {

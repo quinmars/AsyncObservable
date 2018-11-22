@@ -14,10 +14,15 @@ namespace Quinmars.AsyncObservable
 
             await observer.OnSubscribeAsync(disposable);
 
-            if (!disposable.IsDisposed)
-                await observer.OnCompletedAsync();
-
-            await observer.OnFinallyAsync();
+            try
+            {
+                if (!disposable.IsDisposed)
+                    await observer.OnCompletedAsync();
+            }
+            finally
+            {
+                await observer.OnFinallyAsync();
+            }
         }
     }
 }

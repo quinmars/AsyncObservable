@@ -21,28 +21,34 @@ namespace Quinmars.AsyncObservable
 
             await observer.OnSubscribeAsync(disposable);
 
-            foreach (var item in _enumerable)
+            try
             {
-                if (disposable.IsDisposed)
-                    break;
-
-                var t = observer.OnNextAsync(item);
-
-                try
+                foreach (var item in _enumerable)
                 {
-                    await t;
+                    if (disposable.IsDisposed)
+                        break;
+
+                    var t = observer.OnNextAsync(item);
+
+                    try
+                    {
+                        await t;
+                    }
+                    catch (Exception ex)
+                    {
+                        await observer.OnErrorAsync(ex);
+                        break;
+                    }
                 }
-                catch (Exception ex)
-                {
-                    await observer.OnErrorAsync(ex);
-                    break;
-                }
+
+                if (!disposable.IsDisposed)
+                    await observer.OnCompletedAsync();
+
             }
-
-            if (!disposable.IsDisposed)
-                await observer.OnCompletedAsync();
-
-            await observer.OnFinallyAsync();
+            finally
+            {
+                await observer.OnFinallyAsync();
+            }
         }
     }
 }

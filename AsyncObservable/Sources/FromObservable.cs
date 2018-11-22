@@ -62,54 +62,58 @@ namespace Quinmars.AsyncObservable
             {
                 await _observer.OnSubscribeAsync(this);
 
-                var done = false;
-
-                while (true)
+                try
                 {
+                    var done = false;
+
                     while (true)
                     {
-                        if (IsCanceled)
-                            goto Dispose;
-
-                        done = Volatile.Read(ref _done);
-
-                        if (_queue.TryDequeue(out var item))
+                        while (true)
                         {
-                            var t = _observer.OnNextAsync(item);
+                            if (IsCanceled)
+                                return;
 
-                            try
+                            done = Volatile.Read(ref _done);
+
+                            if (_queue.TryDequeue(out var item))
                             {
-                                await t;
+                                var t = _observer.OnNextAsync(item);
+
+                                try
+                                {
+                                    await t;
+                                }
+                                catch (Exception ex)
+                                {
+                                    await _observer.OnErrorAsync(ex);
+                                    return;
+                                }
                             }
-                            catch (Exception ex)
-                            {
-                                await _observer.OnErrorAsync(ex);
-                                goto Dispose;
-                            }
+                            else
+                                break;
                         }
-                        else if (done)
-                            goto Done;
-                        else
+
+                        if (done)
                             break;
+
+                        await ResumeHelper.Await(ref _tcs);
+                        ResumeHelper.Clear(ref _tcs);
                     }
 
-                    await ResumeHelper.Await(ref _tcs);
-                    ResumeHelper.Clear(ref _tcs);
-                } 
+                    if (!IsCanceled)
+                    {
+                        if (_error == null)
+                            await _observer.OnCompletedAsync();
+                        else
+                            await _observer.OnErrorAsync(_error);
+                    }
 
-            Done:
-                if (!IsCanceled)
-                {
-                    if (_error == null)
-                        await _observer.OnCompletedAsync();
-                    else
-                        await _observer.OnErrorAsync(_error);
+                    Dispose();
                 }
-
-            Dispose:
-                Dispose();
-
-                await _observer.OnFinallyAsync();
+                finally
+                {
+                    await _observer.OnFinallyAsync();
+                }
             }
 
 

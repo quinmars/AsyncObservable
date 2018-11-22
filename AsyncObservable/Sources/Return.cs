@@ -21,32 +21,33 @@ namespace Quinmars.AsyncObservable
 
             await observer.OnSubscribeAsync(disposable);
 
-            if (disposable.IsDisposed)
-            {
-                await observer.OnFinallyAsync();
-                return;
-            }
-
-            var t = observer.OnNextAsync(_value);
-
             try
             {
-                await t;
-            }
-            catch (Exception ex)
-            {
-                if (!disposable.IsDisposed)
+                if (disposable.IsDisposed)
+                    return;
+
+                var t = observer.OnNextAsync(_value);
+
+                try
                 {
-                    await observer.OnErrorAsync(ex);
+                    await t;
                 }
-                await observer.OnFinallyAsync();
-                return;
+                catch (Exception ex)
+                {
+                    if (!disposable.IsDisposed)
+                    {
+                        await observer.OnErrorAsync(ex);
+                    }
+                    return;
+                }
+
+                if (!disposable.IsDisposed)
+                    await observer.OnCompletedAsync();
             }
-
-            if (!disposable.IsDisposed)
-                await observer.OnCompletedAsync();
-
-            await observer.OnFinallyAsync();
+            finally
+            {
+                await observer.OnFinallyAsync();
+            }
         }
     }
 }

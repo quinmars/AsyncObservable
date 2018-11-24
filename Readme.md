@@ -36,12 +36,15 @@ public interface IAsyncObservable<out T>
     ValueTask SubscribeAsync(IAsyncObserver<T> observer);
 }
 ```
-it is (almost) obvious what it does and 
+it offers one method to subscribe an observer to an observable. The returned task
+should complete when the sequence is finished completely, i.e. after `OnFinallyAsync`
+of the observer is called.
+
 
 ```csharp
 public interface IAsyncObserver<in T>
 {
-    ValueTask OnSubscibeAsync(ICancelable cancelable);
+    ValueTask OnSubscibeAsync(IDisposable cancelable);
     ValueTask OnNextAsync(T value);
     ValueTask OnCompletedAsync();
     ValueTask OnErrorAsync(Exception error);
@@ -49,7 +52,7 @@ public interface IAsyncObserver<in T>
 }
 ```
 
-The interface may only be used sequentially. All methods must not be called
+The observer interface may only be used sequentially. All methods must not be called
 in parallel. The returned tasks have to be awaited before another or the same
 method is allowed to be called. For an operator it is ok to rely on that
 producer and consumer play nice. It is not required to defend the contract
@@ -79,7 +82,7 @@ The semantics of those three methods are very similar to the synchronous
 `IObserver` contract. If an operator terminates a sequence, like for example
 `Take`, it should cancel the upstream observer. If it is simply forwarding a
 completion or an error it should not call `Dispose` of the upstream
-`Cancelable`. 
+`Disposeble`. 
 
 ### `OnFinallyAsync()`
 
@@ -91,7 +94,5 @@ An operator can dispose used resources here safely.
 
 The contract may and will probably change. There are some open questions.
 
- - What is the meaning of the `SubscribeAsync()` returned task? Will it be
-   the point after `OnSubscribeAsync()` or when the sequence finished?
-   or will it depend on the actual source.
  - When using `await` should the tasks be awaited with `.ConfigureAwait(true)`?
+ - How should scheduler look like?

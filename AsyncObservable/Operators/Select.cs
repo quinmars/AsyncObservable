@@ -5,49 +5,98 @@ using System.Threading.Tasks;
 
 namespace Quinmars.AsyncObservable
 {
-    class Select<TSource, TResult> : IAsyncObservable<TResult>
+    static class Select<TSource, TResult>
     {
-        readonly IAsyncObservable<TSource> _source;
-        readonly Func<TSource, TResult> _selector;
-
-        public Select(IAsyncObservable<TSource> source, Func<TSource, TResult> selector)
+        public class Sync : IAsyncObservable<TResult>
         {
-            _source = source;
-            _selector = selector;
-        }
-
-        public ValueTask SubscribeAsync(IAsyncObserver<TResult> observer)
-        {
-            var o = new Observer(observer, _selector);
-            return _source.SubscribeAsync(o);
-        }
-
-        class Observer : ForwardingAsyncObserver<TSource, TResult>
-        {
+            readonly IAsyncObservable<TSource> _source;
             readonly Func<TSource, TResult> _selector;
 
-            public Observer(IAsyncObserver<TResult> observer, Func<TSource, TResult> selector)
-                : base(observer)
+            public Sync(IAsyncObservable<TSource> source, Func<TSource, TResult> selector)
             {
+                _source = source;
                 _selector = selector;
             }
 
-            public override ValueTask OnNextAsync(TSource value)
+            public ValueTask SubscribeAsync(IAsyncObserver<TResult> observer)
             {
-                if (IsCanceled)
-                    return default;
+                var o = new Observer(observer, _selector);
+                return _source.SubscribeAsync(o);
+            }
 
-                TResult v;
-                try
+            class Observer : ForwardingAsyncObserver<TSource, TResult>
+            {
+                readonly Func<TSource, TResult> _selector;
+
+                public Observer(IAsyncObserver<TResult> observer, Func<TSource, TResult> selector)
+                    : base(observer)
                 {
-                    v = _selector(value);
-                }
-                catch (Exception ex)
-                {
-                    return SignalErrorAsync(ex);
+                    _selector = selector;
                 }
 
-                return ForwardNextAsync(v);
+                public override ValueTask OnNextAsync(TSource value)
+                {
+                    if (IsCanceled)
+                        return default;
+
+                    TResult v;
+                    try
+                    {
+                        v = _selector(value);
+                    }
+                    catch (Exception ex)
+                    {
+                        return SignalErrorAsync(ex);
+                    }
+
+                    return ForwardNextAsync(v);
+                }
+            }
+        }
+
+        public class Async : IAsyncObservable<TResult>
+        {
+            readonly IAsyncObservable<TSource> _source;
+            readonly Func<TSource, ValueTask<TResult>> _selector;
+
+            public Async(IAsyncObservable<TSource> source, Func<TSource, ValueTask<TResult>> selector)
+            {
+                _source = source;
+                _selector = selector;
+            }
+
+            public ValueTask SubscribeAsync(IAsyncObserver<TResult> observer)
+            {
+                var o = new Observer(observer, _selector);
+                return _source.SubscribeAsync(o);
+            }
+
+            class Observer : ForwardingAsyncObserver<TSource, TResult>
+            {
+                readonly Func<TSource, ValueTask<TResult>> _selector;
+
+                public Observer(IAsyncObserver<TResult> observer, Func<TSource, ValueTask<TResult>> selector)
+                    : base(observer)
+                {
+                    _selector = selector;
+                }
+
+                public override async ValueTask OnNextAsync(TSource value)
+                {
+                    if (IsCanceled)
+                        return;
+
+                    try
+                    {
+                        var v = await _selector(value);
+                        await ForwardNextAsync(v);
+                    }
+                    catch (Exception ex)
+                    {
+                        await SignalErrorAsync(ex);
+                    }
+
+                }
             }
         }
     }

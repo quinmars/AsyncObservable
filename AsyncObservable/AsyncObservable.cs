@@ -160,7 +160,7 @@ namespace Quinmars.AsyncObservable
             if (selector == null)
                 throw new ArgumentNullException(nameof(selector));
 
-            return new Select<TSource, TResult>(source, selector);
+            return new Select<TSource, TResult>.Sync(source, selector);
         }
 
         public static IAsyncObservable<TResult> Select<TSource, TResult>(this IAsyncObservable<TSource> source, Func<TSource, ValueTask<TResult>> selector)
@@ -170,7 +170,7 @@ namespace Quinmars.AsyncObservable
             if (selector == null)
                 throw new ArgumentNullException(nameof(selector));
 
-            return new AsyncSelect<TSource, TResult>(source, selector);
+            return new Select<TSource, TResult>.Async(source, selector);
         }
 
         public static IAsyncObservable<TResult> SelectMany<TSource, TResult>(this IAsyncObservable<TSource> source, Func<TSource, IEnumerable<TResult>> selector)
@@ -242,7 +242,7 @@ namespace Quinmars.AsyncObservable
             if (predicate == null)
                 throw new ArgumentNullException(nameof(predicate));
 
-            return new Where<T>(source, predicate);
+            return new Where<T>.Sync(source, predicate);
         }
 
         public static IAsyncObservable<T> Where<T>(this IAsyncObservable<T> source, Func<T, ValueTask<bool>> predicate)
@@ -252,7 +252,7 @@ namespace Quinmars.AsyncObservable
             if (predicate == null)
                 throw new ArgumentNullException(nameof(predicate));
 
-            return new AsyncWhere<T>(source, predicate);
+            return new Where<T>.Async(source, predicate);
         }
 
         public static IAsyncObservable<(T1, T2)> Zip<T1, T2>(this IAsyncObservable<T1> source1, IAsyncObservable<T2> source2)

@@ -5,49 +5,99 @@ using System.Threading.Tasks;
 
 namespace Quinmars.AsyncObservable
 {
-    class Where<T> : IAsyncObservable<T>
+    class Where<T>
     {
-        readonly IAsyncObservable<T> _source;
-        readonly Func<T, bool> _predicate;
-
-        public Where(IAsyncObservable<T> source, Func<T, bool> predicate)
+        public class Sync : IAsyncObservable<T>
         {
-            _source = source;
-            _predicate = predicate;
-        }
-
-        public ValueTask SubscribeAsync(IAsyncObserver<T> observer)
-        {
-            var o = new Observer(observer, _predicate);
-            return _source.SubscribeAsync(o);
-        }
-
-        class Observer : ForwardingAsyncObserver<T>
-        {
+            readonly IAsyncObservable<T> _source;
             readonly Func<T, bool> _predicate;
 
-            public Observer(IAsyncObserver<T> observer, Func<T, bool> predicate)
-                : base(observer)
+            public Sync(IAsyncObservable<T> source, Func<T, bool> predicate)
             {
+                _source = source;
                 _predicate = predicate;
             }
 
-            public override ValueTask OnNextAsync(T value)
+            public ValueTask SubscribeAsync(IAsyncObserver<T> observer)
             {
-                if (IsCanceled)
-                    return default;
+                var o = new Observer(observer, _predicate);
+                return _source.SubscribeAsync(o);
+            }
 
-                try
+            class Observer : ForwardingAsyncObserver<T>
+            {
+                readonly Func<T, bool> _predicate;
+
+                public Observer(IAsyncObserver<T> observer, Func<T, bool> predicate)
+                    : base(observer)
                 {
-                    if (!_predicate(value))
+                    _predicate = predicate;
+                }
+
+                public override ValueTask OnNextAsync(T value)
+                {
+                    if (IsCanceled)
                         return default;
+
+                    try
+                    {
+                        if (!_predicate(value))
+                            return default;
+                    }
+                    catch (Exception ex)
+                    {
+                        return SignalErrorAsync(ex);
+                    }
+
+                    return ForwardNextAsync(value);
                 }
-                catch (Exception ex)
+            }
+        }
+
+        public class Async : IAsyncObservable<T>
+        {
+            readonly IAsyncObservable<T> _source;
+            readonly Func<T, ValueTask<bool>> _predicate;
+
+            public Async(IAsyncObservable<T> source, Func<T, ValueTask<bool>> predicate)
+            {
+                _source = source;
+                _predicate = predicate;
+            }
+
+            public ValueTask SubscribeAsync(IAsyncObserver<T> observer)
+            {
+                var o = new Observer(observer, _predicate);
+                return _source.SubscribeAsync(o);
+            }
+
+            class Observer : ForwardingAsyncObserver<T>
+            {
+                readonly Func<T, ValueTask<bool>> _predicate;
+
+                public Observer(IAsyncObserver<T> observer, Func<T, ValueTask<bool>> predicate)
+                    : base(observer)
                 {
-                    return SignalErrorAsync(ex);
+                    _predicate = predicate;
                 }
 
-                return ForwardNextAsync(value);
+                public override async ValueTask OnNextAsync(T value)
+                {
+                    if (IsCanceled)
+                        return;
+
+                    try
+                    {
+                        if (!await _predicate(value))
+                            return;
+
+                        await ForwardNextAsync(value);
+                    }
+                    catch (Exception ex)
+                    {
+                        await SignalErrorAsync(ex);
+                    }
+                }
             }
         }
     }

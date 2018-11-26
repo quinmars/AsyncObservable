@@ -32,8 +32,7 @@ namespace Quinmars.AsyncObservable
 
         public Task Delay(TimeSpan ts, CancellationToken ca)
         {
-            var item = new Item(Now + ts);
-            ca.Register(i => ((Item)i).Cancel(), item);
+            var item = new Item(Now + ts, ca);
             
             lock (_locker)
             {
@@ -70,19 +69,22 @@ namespace Quinmars.AsyncObservable
         class Item
         {
             readonly TaskCompletionSource<Unit> _tcs;
+            CancellationTokenRegistration _registration;
 
             public DateTimeOffset DueTime { get; }
             public Task Task => _tcs.Task;
 
-            public Item(DateTimeOffset due)
+            public Item(DateTimeOffset due, CancellationToken ca)
             {
                 DueTime = due;
                 _tcs = new TaskCompletionSource<Unit>();
+                _registration = ca.Register(i => ((Item)i).Cancel(), this);
             }
 
             public void Finish()
             {
                 _tcs.TrySetResult(default);
+                _registration.Dispose();
             }
 
             public void Cancel()

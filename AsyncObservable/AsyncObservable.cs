@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reactive.Disposables;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Quinmars.AsyncObservable
@@ -173,6 +174,16 @@ namespace Quinmars.AsyncObservable
             return new Select<TSource, TResult>.Async(source, selector);
         }
 
+        public static IAsyncObservable<TResult> Select<TSource, TResult>(this IAsyncObservable<TSource> source, Func<TSource, CancellationToken, ValueTask<TResult>> selector)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (selector == null)
+                throw new ArgumentNullException(nameof(selector));
+
+            return new Select<TSource, TResult>.AsyncWithCancellation(source, selector);
+        }
+
         public static IAsyncObservable<TResult> SelectMany<TSource, TResult>(this IAsyncObservable<TSource> source, Func<TSource, IEnumerable<TResult>> selector)
         {
             if (source == null)
@@ -290,12 +301,12 @@ namespace Quinmars.AsyncObservable
         public static IAsyncObservable<T> ToAsyncObservable<T>(this ValueTask<T[]> source)
             => new FromValueTaskEnumerable<T, T[]>(source);
 
-        public static ValueTask SubscribeAsync<T>(this IAsyncObservable<T> source, Action<T> onNext = null, Action<Exception> onError = null, Action onCompleted = null)
+        public static ValueTask SubscribeAsync<T>(this IAsyncObservable<T> source, Action<T> onNext = null, Action<Exception> onError = null, Action onCompleted = null, Action onFinally = null, CancellationToken ca = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
-            var observer = new SyncAsyncObserver<T>(onNext, onError, onCompleted);
+            var observer = new SyncAsyncObserver<T>(onNext, onError, onCompleted, onFinally, ca);
             return source.SubscribeAsync(observer);
         }
 
@@ -304,7 +315,7 @@ namespace Quinmars.AsyncObservable
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
-            var observer = new SyncAsyncObserver<T>(onNext, onError, onCompleted);
+            var observer = new SyncAsyncObserver<T>(onNext, onError, onCompleted, null, default);
             source.SubscribeAsync(observer);
             return observer;
         }

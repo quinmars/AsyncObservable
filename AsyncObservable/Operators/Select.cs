@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Quinmars.AsyncObservable
@@ -96,6 +97,66 @@ namespace Quinmars.AsyncObservable
                         await SignalErrorAsync(ex);
                     }
 
+                }
+            }
+        }
+
+        public class AsyncWithCancellation : IAsyncObservable<TResult>
+        {
+            readonly IAsyncObservable<TSource> _source;
+            readonly Func<TSource, CancellationToken, ValueTask<TResult>> _selector;
+
+            public AsyncWithCancellation(IAsyncObservable<TSource> source, Func<TSource, CancellationToken, ValueTask<TResult>> selector)
+            {
+                _source = source;
+                _selector = selector;
+            }
+
+            public ValueTask SubscribeAsync(IAsyncObserver<TResult> observer)
+            {
+                var o = new Observer(observer, _selector);
+                return _source.SubscribeAsync(o);
+            }
+
+            class Observer : ForwardingAsyncObserver<TSource, TResult>
+            {
+                readonly Func<TSource, CancellationToken, ValueTask<TResult>> _selector;
+                readonly CancellationTokenSource _caSource = new CancellationTokenSource();
+
+                public Observer(IAsyncObserver<TResult> observer, Func<TSource, CancellationToken, ValueTask<TResult>> selector)
+                    : base(observer)
+                {
+                    _selector = selector;
+                }
+
+                public override async ValueTask OnNextAsync(TSource value)
+                {
+                    if (IsCanceled)
+                        return;
+
+                    try
+                    {
+                        var v = await _selector(value, _caSource.Token);
+                        await ForwardNextAsync(v);
+                    }
+                    catch (Exception ex)
+                    {
+                        if (!IsCanceled)
+                            await SignalErrorAsync(ex);
+                    }
+
+                }
+
+                public override void Dispose()
+                {
+                    base.Dispose();
+                    _caSource.Cancel();
+                }
+
+                public override ValueTask OnFinallyAsync()
+                {
+                    _caSource.Dispose();
+                    return base.OnFinallyAsync();
                 }
             }
         }

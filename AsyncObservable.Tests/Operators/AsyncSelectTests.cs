@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using System.Reactive.Disposables;
 using System.Reactive;
+using FluentAssertions.Extensions;
+using System.Threading;
 
 namespace Tests
 {
@@ -42,6 +44,63 @@ namespace Tests
 
             result
                 .Should().Be("9876543210C");
+        }
+
+        [Fact]
+        public async Task SelectWithCa()
+        {
+            string result = "";
+
+            await AsyncObservable.Range(0, 10)
+                .Select((i, ca) => CreateTask(9 - i))
+                .SubscribeAsync(i => result += i, onCompleted: () => result += "C");
+
+            result
+                .Should().Be("9876543210C");
+        }
+
+        [Fact]
+        public async Task SelectWithCa2()
+        {
+            string result = "";
+
+            await AsyncObservable.Range(0, 10)
+                .Select(async (i, ca) => await CreateTask(9 - i))
+                .Take(2)
+                .SubscribeAsync(i => result += i, onCompleted: () => result += "C");
+
+            result
+                .Should().Be("98C");
+        }
+
+        [Fact]
+        public async Task IntermediateCancel()
+        {
+            var result = "";
+            var scheduler = new TestAsyncScheduler();
+
+            await scheduler.RunAsync(async () =>
+            {
+                using (var cts = new CancellationTokenSource())
+                {
+                    var t1 = AsyncObservable.Range(0, 10)
+                        .Select(async (i, ca) =>
+                        {
+                            await scheduler.Delay(20.Seconds(), ca);
+                            return i;
+                        })
+                        .SubscribeAsync(i => result += i, onCompleted: () => result += "C", ca: cts.Token);
+
+                    await scheduler.Delay(50.Seconds(), default);
+                    cts.Cancel();
+                    await t1;
+                }
+
+                return Unit.Default;
+            });
+
+            result
+                .Should().Be("01");
         }
 
         [Fact]

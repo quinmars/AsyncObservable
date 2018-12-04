@@ -306,7 +306,16 @@ namespace Quinmars.AsyncObservable
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
-            var observer = new SyncAsyncObserver<T>(onNext, onError, onCompleted, onFinally, ca);
+            var observer = new AnonymousAsyncObserver<T>.Sync(onNext, onError, onCompleted, onFinally, ca);
+            return source.SubscribeAsync(observer);
+        }
+
+        public static ValueTask SubscribeAsync<T>(this IAsyncObservable<T> source, Func<T, ValueTask> onNext, Func<Exception, ValueTask> onError = null, Func<ValueTask> onCompleted = null, Func<ValueTask> onFinally = null, CancellationToken ca = default)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            var observer = new AnonymousAsyncObserver<T>.Async(onNext, onError, onCompleted, onFinally, ca);
             return source.SubscribeAsync(observer);
         }
 
@@ -315,7 +324,7 @@ namespace Quinmars.AsyncObservable
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
-            var observer = new SyncAsyncObserver<T>(onNext, onError, onCompleted, null, default);
+            var observer = new AnonymousAsyncObserver<T>.Sync(onNext, onError, onCompleted, null, default);
             source.SubscribeAsync(observer);
             return observer;
         }

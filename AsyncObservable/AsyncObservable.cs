@@ -86,6 +86,15 @@ namespace Quinmars.AsyncObservable
             return new Do<T>(source, action);
         }
 
+        public static IAsyncObservable<T> DropOnBackpressure<T>(this IAsyncObservable<T> source)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            return new DropOnBackpressure<T>(source);
+        }
+
+
         public static IAsyncObservable<T> Empty<T>()
         {
             return new Empty<T>();

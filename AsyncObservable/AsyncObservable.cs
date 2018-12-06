@@ -163,6 +163,17 @@ namespace Quinmars.AsyncObservable
             return new Return<T>(value);
         }
 
+        public static IAsyncObservable<T> SampleFirst<T>(this IAsyncObservable<T> source, TimeSpan time, IAsyncScheduler scheduler)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (time < TimeSpan.Zero)
+                throw new ArgumentOutOfRangeException(nameof(time));
+
+            return new SampleFirst<T>(source, time, scheduler);
+        }
+
+
         public static IAsyncObservable<TResult> Select<TSource, TResult>(this IAsyncObservable<TSource> source, Func<TSource, TResult> selector)
         {
             if (source == null)

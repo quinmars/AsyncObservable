@@ -76,6 +76,24 @@ namespace Quinmars.AsyncObservable
             return new ConcatEnumerable<T>(sources);
         }
 
+        public static IAsyncObservable<T> Distinct<T>(this IAsyncObservable<T> sources)
+        {
+            if (sources == null)
+                throw new ArgumentNullException(nameof(sources));
+
+            return new DistinctBy<T, T>(sources, v => v);
+        }
+
+        public static IAsyncObservable<T> DistinctBy<T, TSelect>(this IAsyncObservable<T> sources, Func<T, TSelect> selector)
+        {
+            if (sources == null)
+                throw new ArgumentNullException(nameof(sources));
+            if (selector == null)
+                throw new ArgumentNullException(nameof(selector));
+
+            return new DistinctBy<T, TSelect>(sources, selector);
+        }
+
         public static IAsyncObservable<T> Do<T>(this IAsyncObservable<T> source, Action<T> action)
         {
             if (source == null)

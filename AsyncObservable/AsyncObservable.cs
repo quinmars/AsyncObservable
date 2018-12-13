@@ -94,6 +94,24 @@ namespace Quinmars.AsyncObservable
             return new DistinctBy<T, TSelect>(sources, selector);
         }
 
+        public static IAsyncObservable<T> DistinctUntilChanged<T>(this IAsyncObservable<T> sources)
+        {
+            if (sources == null)
+                throw new ArgumentNullException(nameof(sources));
+
+            return new DistinctUntilChanged<T, T>(sources, v => v, EqualityComparer<T>.Default);
+        }
+
+        public static IAsyncObservable<T> DistinctUntilChanged<T, TSelect>(this IAsyncObservable<T> sources, Func<T, TSelect> selector)
+        {
+            if (sources == null)
+                throw new ArgumentNullException(nameof(sources));
+            if (selector == null)
+                throw new ArgumentNullException(nameof(selector));
+
+            return new DistinctUntilChanged<T, TSelect>(sources, selector, EqualityComparer<TSelect>.Default);
+        }
+
         public static IAsyncObservable<T> Do<T>(this IAsyncObservable<T> source, Action<T> action)
         {
             if (source == null)

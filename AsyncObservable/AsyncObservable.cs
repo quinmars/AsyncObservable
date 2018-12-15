@@ -186,6 +186,155 @@ namespace Quinmars.AsyncObservable
             return new Never<T>();
         }
 
+        /// <summary>
+        /// Orders the source by means of the given element selector ascendingly.
+        /// </summary>
+        /// <typeparam name="T">The element type of the source and result observables.</typeparam>
+        /// <typeparam name="TSelect">The type of the selected sorting criterion.</typeparam>
+        /// <param name="source">The observable to sort.</param>
+        /// <param name="selector">The selector to select the sorting criterion.</param>
+        /// <returns>The new observable instance.</returns>
+        public static IOrderedAsyncObservable<T> OrderBy<T, TSelect>(this IAsyncObservable<T> source, Func<T, TSelect> selector)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (selector == null)
+                throw new ArgumentNullException(nameof(selector));
+
+            return new OrderedAsyncObservable<T>(source, new AsscendingComparer<T, TSelect>(selector));
+        }
+
+        /// <summary>
+        /// Orders the source by means of the given element selector and comparer ascendingly.
+        /// </summary>
+        /// <typeparam name="T">The element type of the source and result observables.</typeparam>
+        /// <typeparam name="TSelect">The type of the selected sorting criterion.</typeparam>
+        /// <param name="source">The observable to sort.</param>
+        /// <param name="selector">The selector to select the sorting criterion.</param>
+        /// <param name="comparer">The comparer to compare the sorting criterion.</param>
+        /// <returns>The new observable instance.</returns>
+        public static IOrderedAsyncObservable<T> OrderBy<T, TSelect>(this IAsyncObservable<T> source, Func<T, TSelect> selector, IComparer<TSelect> comparer)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (selector == null)
+                throw new ArgumentNullException(nameof(selector));
+
+            return new OrderedAsyncObservable<T>(source, new AsscendingComparer<T, TSelect>(selector, comparer));
+        }
+
+        /// <summary>
+        /// Orders the source by means of the given element selector descendingly.
+        /// </summary>
+        /// <typeparam name="T">The element type of the source and result observables.</typeparam>
+        /// <typeparam name="TSelect">The type of the selected sorting criterion.</typeparam>
+        /// <param name="source">The observable to sort.</param>
+        /// <param name="selector">The selector to select the sorting criterion.</param>
+        /// <returns>The new observable instance.</returns>
+        public static IOrderedAsyncObservable<T> OrderByDescending<T, TSelect>(this IAsyncObservable<T> source, Func<T, TSelect> selector)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (selector == null)
+                throw new ArgumentNullException(nameof(selector));
+
+            return new OrderedAsyncObservable<T>(source, new DescendingComparer<T, TSelect>(selector));
+        }
+
+        /// <summary>
+        /// Orders the source by means of the given element selector and comparer descendingly.
+        /// </summary>
+        /// <typeparam name="T">The element type of the source and result observables.</typeparam>
+        /// <typeparam name="TSelect">The type of the selected sorting criterion.</typeparam>
+        /// <param name="source">The observable to sort.</param>
+        /// <param name="selector">The selector to select the sorting criterion.</param>
+        /// <param name="comparer">The comparer to compare the sorting criterion.</param>
+        /// <returns>The new observable instance.</returns>
+        public static IOrderedAsyncObservable<T> OrderByDescending<T, TSelect>(this IAsyncObservable<T> source, Func<T, TSelect> selector, IComparer<TSelect> comparer)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (selector == null)
+                throw new ArgumentNullException(nameof(selector));
+
+            return new OrderedAsyncObservable<T>(source, new DescendingComparer<T, TSelect>(selector, comparer));
+        }
+
+        /// <summary>
+        /// Orders the ordered observable by a further sorting criterion ascendingly.
+        /// </summary>
+        /// <typeparam name="T">The element type of the source and result observables.</typeparam>
+        /// <typeparam name="TSelect">The type of the selected sorting criterion.</typeparam>
+        /// <param name="source">The observable to sort.</param>
+        /// <param name="selector">The selector to select the sorting criterion.</param>
+        /// <returns>The new observable instance.</returns>
+        public static IOrderedAsyncObservable<T> ThenBy<T, TSelect>(this IOrderedAsyncObservable<T> source, Func<T, TSelect> selector)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (selector == null)
+                throw new ArgumentNullException(nameof(selector));
+
+            return source.CreateOrderedObservable(selector, null, false);
+        }
+
+        /// <summary>
+        /// Orders the ordered observable by a further sorting criterion ascendingly.
+        /// </summary>
+        /// <typeparam name="T">The element type of the source and result observables.</typeparam>
+        /// <typeparam name="TSelect">The type of the selected sorting criterion.</typeparam>
+        /// <param name="source">The observable to sort.</param>
+        /// <param name="selector">The selector to select the sorting criterion.</param>
+        /// <param name="comparer">The comparer to compare the sorting criterion.</param>
+        /// <returns>The new observable instance.</returns>
+        public static IOrderedAsyncObservable<T> ThenBy<T, TSelect>(this IOrderedAsyncObservable<T> source, Func<T, TSelect> selector, IComparer<TSelect> comparer)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (selector == null)
+                throw new ArgumentNullException(nameof(selector));
+
+            return source.CreateOrderedObservable(selector, comparer, false);
+        }
+
+        /// <summary>
+        /// Orders the ordered observable by a further sorting criterion descendingly.
+        /// </summary>
+        /// <typeparam name="T">The element type of the source and result observables.</typeparam>
+        /// <typeparam name="TSelect">The type of the selected sorting criterion.</typeparam>
+        /// <param name="source">The observable to sort.</param>
+        /// <param name="selector">The selector to select the sorting criterion.</param>
+        /// <returns>The new observable instance.</returns>
+        public static IOrderedAsyncObservable<T> ThenByDescending<T, TSelect>(this IOrderedAsyncObservable<T> source, Func<T, TSelect> selector)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            if (selector == null)
+                throw new ArgumentNullException(nameof(selector));
+
+            return source.CreateOrderedObservable(selector, null, true);
+        }
+
+        /// <summary>
+        /// Orders the ordered observable by a further sorting criterion descendingly.
+        /// </summary>
+        /// <typeparam name="T">The element type of the source and result observables.</typeparam>
+        /// <typeparam name="TSelect">The type of the selected sorting criterion.</typeparam>
+        /// <param name="source">The observable to sort.</param>
+        /// <param name="selector">The selector to select the sorting criterion.</param>
+        /// <param name="comparer">The comparer to compare the sorting criterion.</param>
+        /// <returns>The new observable instance.</returns>
+        public static IOrderedAsyncObservable<T> ThenByDescending<T, TSelect>(this IOrderedAsyncObservable<T> source, Func<T, TSelect> selector, IComparer<TSelect> comparer)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (selector == null)
+                throw new ArgumentNullException(nameof(selector));
+
+            return source.CreateOrderedObservable(selector, comparer, true);
+        }
+
         public static IAsyncObservable<int> Range(int start, int count)
         {
             if (count < 0)

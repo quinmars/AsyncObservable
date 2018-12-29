@@ -121,12 +121,13 @@ namespace Quinmars.AsyncObservable
             class Observer : ForwardingAsyncObserver<TSource, TResult>
             {
                 readonly Func<TSource, CancellationToken, ValueTask<TResult>> _selector;
-                readonly CancellationTokenSource _caSource = new CancellationTokenSource();
+                CancellationTokenSource _caSource;
 
                 public Observer(IAsyncObserver<TResult> observer, Func<TSource, CancellationToken, ValueTask<TResult>> selector)
                     : base(observer)
                 {
                     _selector = selector;
+                    _caSource = new CancellationTokenSource();
                 }
 
                 public override async ValueTask OnNextAsync(TSource value)
@@ -150,12 +151,19 @@ namespace Quinmars.AsyncObservable
                 public override void Dispose()
                 {
                     base.Dispose();
-                    _caSource.Cancel();
+
+                    var cas = Interlocked.Exchange(ref _caSource, null);
+
+                    if (cas != null)
+                    {
+                        cas.Cancel();
+                        cas.Dispose();
+                    }
                 }
 
                 public override ValueTask OnFinallyAsync()
                 {
-                    _caSource.Dispose();
+                    Interlocked.Exchange(ref _caSource, null)?.Dispose();
                     return base.OnFinallyAsync();
                 }
             }

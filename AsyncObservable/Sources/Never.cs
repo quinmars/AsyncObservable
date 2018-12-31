@@ -12,18 +12,18 @@ namespace Quinmars.AsyncObservable
         {
             var disposable = new AwaitableDisposable();
 
-            await observer.OnSubscribeAsync(disposable);
+            await observer.OnSubscribeAsync(disposable).ConfigureAwait(false);
 
             try
             {
                 // AwaitableDisposable will not throw, hence we
                 // do not need to follow the try finally pattern.
                 // We do it nonetheless to be consistent.
-                await disposable.Task;
+                await disposable.Task.ConfigureAwait(false);
             }
             finally
             {
-                await observer.OnFinallyAsync();
+                await observer.OnFinallyAsync().ConfigureAwait(false);
             }
         }
     }

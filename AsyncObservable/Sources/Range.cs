@@ -21,7 +21,7 @@ namespace Quinmars.AsyncObservable
         {
             var disposable = new BooleanDisposable();
 
-            await observer.OnSubscribeAsync(disposable);
+            await observer.OnSubscribeAsync(disposable).ConfigureAwait(false);
 
             try
             {
@@ -34,21 +34,21 @@ namespace Quinmars.AsyncObservable
 
                     try
                     {
-                        await t;
+                        await t.ConfigureAwait(false);
                     }
                     catch (Exception ex)
                     {
-                        await observer.OnErrorAsync(ex);
+                        await observer.OnErrorAsync(ex).ConfigureAwait(false);
                         break;
                     }
                 }
 
                 if (!disposable.IsDisposed)
-                    await observer.OnCompletedAsync();
+                    await observer.OnCompletedAsync().ConfigureAwait(false);
             }
             finally
             {
-                await observer.OnFinallyAsync();
+                await observer.OnFinallyAsync().ConfigureAwait(false);
             }
         }
     }

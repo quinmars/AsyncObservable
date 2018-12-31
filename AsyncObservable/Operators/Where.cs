@@ -88,14 +88,14 @@ namespace Quinmars.AsyncObservable
 
                     try
                     {
-                        if (!await _predicate(value))
+                        if (!await _predicate(value).ConfigureAwait(false))
                             return;
 
-                        await ForwardNextAsync(value);
+                        await ForwardNextAsync(value).ConfigureAwait(false);
                     }
                     catch (Exception ex)
                     {
-                        await SignalErrorAsync(ex);
+                        await SignalErrorAsync(ex).ConfigureAwait(false);
                     }
                 }
             }

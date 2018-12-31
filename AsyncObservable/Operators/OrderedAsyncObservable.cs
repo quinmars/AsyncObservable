@@ -111,16 +111,16 @@ namespace Quinmars.AsyncObservable
                 {
                     heap.Build();
                     while (heap.Count > 0 && !IsCanceled)
-                        await ForwardNextAsync(heap.Pop());
+                        await ForwardNextAsync(heap.Pop()).ConfigureAwait(false);
 
                 }
                 catch (Exception error)
                 {
-                    await SignalErrorAsync(error);
+                    await SignalErrorAsync(error).ConfigureAwait(false);
                     return;
                 }
 
-                await ForwardCompletedAsync();
+                await ForwardCompletedAsync().ConfigureAwait(false);
             }
 
             public override ValueTask OnNextAsync(T value)

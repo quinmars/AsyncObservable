@@ -43,11 +43,15 @@ namespace Quinmars.AsyncObservable
         }
 
 
-        public async Task<T> RunAsync<T>(Func<Task<T>> func)
+        public Task<T> RunAsync<T>(Func<Task<T>> func)
         {
-            var t = func();
-            Run();
-            return await t;
+            return Task.Run(async () =>
+            { 
+                var t = func();
+                while (!(t.IsCompleted || t.IsCanceled || t.IsFaulted))
+                    Run();
+                return await t.ConfigureAwait(false);
+            });
         }
 
         public void Run()

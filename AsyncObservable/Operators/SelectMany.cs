@@ -59,12 +59,12 @@ namespace Quinmars.AsyncObservable
                         if (IsCanceled)
                             return;
 
-                        await ForwardNextAsync(item);
+                        await ForwardNextAsync(item).ConfigureAwait(false);
                     }
                 }
                 catch (Exception ex)
                 {
-                    await SignalErrorAsync(ex);
+                    await SignalErrorAsync(ex).ConfigureAwait(false);
                 }
             }
         }

@@ -32,7 +32,7 @@ namespace Quinmars.AsyncObservable
             var t2 = _source2.SubscribeAsync(o2);
 
             var t = Task.WhenAll(t1.AsTask(), t2.AsTask());
-            await t;
+            await t.ConfigureAwait(false);
         }
 
         class SharedSink : IDisposable
@@ -67,7 +67,7 @@ namespace Quinmars.AsyncObservable
                 if (_upstream1._done || _upstream2._done)
                 {
                     Dispose();
-                    await _downstream.OnCompletedAsync();
+                    await _downstream.OnCompletedAsync().ConfigureAwait(false);
                     _tcs.SetResult(true);
                     return;
                 }
@@ -75,7 +75,7 @@ namespace Quinmars.AsyncObservable
                 {
                     Dispose();
                     var ex = CreateAggregateException(_upstream1._exception, _upstream2._exception);
-                    await _downstream.OnErrorAsync(ex);
+                    await _downstream.OnErrorAsync(ex).ConfigureAwait(false);
                     _tcs.SetResult(true);
                     return;
                 }
@@ -87,7 +87,7 @@ namespace Quinmars.AsyncObservable
                 var tcs = _tcs;
                 _tcs = new TaskCompletionSource<bool>();
 
-                await _downstream.OnNextAsync(val);
+                await _downstream.OnNextAsync(val).ConfigureAwait(false);
 
                 tcs.SetResult(true);
             }
@@ -115,7 +115,7 @@ namespace Quinmars.AsyncObservable
 
             async ValueTask ForwardSubscribeCoreAsync()
             {
-                await _downstream.OnSubscribeAsync(this);
+                await _downstream.OnSubscribeAsync(this).ConfigureAwait(false);
                 _tcsSubscribe.SetResult(true);
             }
 

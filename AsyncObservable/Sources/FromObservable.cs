@@ -60,7 +60,7 @@ namespace Quinmars.AsyncObservable
 
             public async ValueTask Run()
             {
-                await _observer.OnSubscribeAsync(this);
+                await _observer.OnSubscribeAsync(this).ConfigureAwait(false);
 
                 try
                 {
@@ -81,11 +81,11 @@ namespace Quinmars.AsyncObservable
 
                                 try
                                 {
-                                    await t;
+                                    await t.ConfigureAwait(false);
                                 }
                                 catch (Exception ex)
                                 {
-                                    await _observer.OnErrorAsync(ex);
+                                    await _observer.OnErrorAsync(ex).ConfigureAwait(false);
                                     return;
                                 }
                             }
@@ -96,23 +96,23 @@ namespace Quinmars.AsyncObservable
                         if (done)
                             break;
 
-                        await ResumeHelper.Await(ref _tcs);
+                        await ResumeHelper.Await(ref _tcs).ConfigureAwait(false);
                         ResumeHelper.Clear(ref _tcs);
                     }
 
                     if (!IsCanceled)
                     {
                         if (_error == null)
-                            await _observer.OnCompletedAsync();
+                            await _observer.OnCompletedAsync().ConfigureAwait(false);
                         else
-                            await _observer.OnErrorAsync(_error);
+                            await _observer.OnErrorAsync(_error).ConfigureAwait(false);
                     }
 
                     Dispose();
                 }
                 finally
                 {
-                    await _observer.OnFinallyAsync();
+                    await _observer.OnFinallyAsync().ConfigureAwait(false);
                 }
             }
 

@@ -77,8 +77,8 @@ namespace Quinmars.AsyncObservable
             {
                 if (IsCanceled)
                     return;
-                await ForwardNextAsync(_accumulation);
-                await ForwardCompletedAsync();
+                await ForwardNextAsync(_accumulation).ConfigureAwait(false);
+                await ForwardCompletedAsync().ConfigureAwait(false);
             }
         }
     }

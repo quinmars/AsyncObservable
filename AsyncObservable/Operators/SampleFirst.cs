@@ -57,40 +57,40 @@ namespace Quinmars.AsyncObservable
 
                 try
                 {
-                    await Task.WhenAll(t, delay);
+                    await Task.WhenAll(t, delay).ConfigureAwait(false);
                 }
                 catch (Exception error)
                 {
                     if (!IsCanceled)
-                        await SignalErrorAsync(error);
+                        await SignalErrorAsync(error).ConfigureAwait(false);
                 }
             }
 
             public async override ValueTask OnErrorAsync(Exception error)
             {
-                await _current;
+                await _current.ConfigureAwait(false);
                 _current = Task.CompletedTask;
-                await base.OnErrorAsync(error);
+                await base.OnErrorAsync(error).ConfigureAwait(false);
             }
 
             public async override ValueTask OnCompletedAsync()
             {
-                await _current;
+                await _current.ConfigureAwait(false);
                 _current = Task.CompletedTask;
-                await base.OnCompletedAsync();
+                await base.OnCompletedAsync().ConfigureAwait(false);
             }
 
             public async override ValueTask OnFinallyAsync()
             {
                 try
                 {
-                    await _current;
+                    await _current.ConfigureAwait(false);
                     _current = Task.CompletedTask;
                     _cts.Dispose();
                 }
                 finally
                 {
-                    await base.OnFinallyAsync();
+                    await base.OnFinallyAsync().ConfigureAwait(false);
                 }
             }
 

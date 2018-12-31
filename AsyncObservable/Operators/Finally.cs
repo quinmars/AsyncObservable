@@ -41,7 +41,7 @@ namespace Quinmars.AsyncObservable
                 }
                 finally
                 {
-                    await ForwardFinallyAsync();
+                    await ForwardFinallyAsync().ConfigureAwait(false);
                 }
             }
         }

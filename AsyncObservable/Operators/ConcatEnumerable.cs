@@ -20,7 +20,7 @@ namespace Quinmars.AsyncObservable
         {
             var disposable = new SerialDisposable();
 
-            await observer.OnSubscribeAsync(disposable);
+            await observer.OnSubscribeAsync(disposable).ConfigureAwait(false);
 
             foreach (var obs in _observables)
             {
@@ -31,11 +31,11 @@ namespace Quinmars.AsyncObservable
 
                 try
                 {
-                    await obs.SubscribeAsync(inner);
+                    await obs.SubscribeAsync(inner).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
-                    await observer.OnErrorAsync(ex);
+                    await observer.OnErrorAsync(ex).ConfigureAwait(false);
                     disposable.Dispose();
                     break;
                 }
@@ -48,9 +48,9 @@ namespace Quinmars.AsyncObservable
             }
 
             if (!disposable.IsDisposed)
-                await observer.OnCompletedAsync();
+                await observer.OnCompletedAsync().ConfigureAwait(false);
 
-            await observer.OnFinallyAsync();
+            await observer.OnFinallyAsync().ConfigureAwait(false);
         }
 
         class Observer : AsyncObserverBase, IAsyncObserver<T>

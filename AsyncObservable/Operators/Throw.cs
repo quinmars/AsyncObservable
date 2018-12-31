@@ -19,14 +19,14 @@ namespace Quinmars.AsyncObservable
         {
             var disposable = new BooleanDisposable();
 
-            await observer.OnSubscribeAsync(disposable);
+            await observer.OnSubscribeAsync(disposable).ConfigureAwait(false);
 
             if (!disposable.IsDisposed)
             {
-                await observer.OnErrorAsync(_exception);
+                await observer.OnErrorAsync(_exception).ConfigureAwait(false);
             }
 
-            await observer.OnFinallyAsync();
+            await observer.OnFinallyAsync().ConfigureAwait(false);
         }
     }
 }

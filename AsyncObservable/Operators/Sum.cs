@@ -52,8 +52,8 @@ namespace Quinmars.AsyncObservable
             {
                 if (IsCanceled)
                     return;
-                await ForwardNextAsync(_sum);
-                await ForwardCompletedAsync();
+                await ForwardNextAsync(_sum).ConfigureAwait(false);
+                await ForwardCompletedAsync().ConfigureAwait(false);
             }
         }
     }
@@ -93,8 +93,8 @@ namespace Quinmars.AsyncObservable
             {
                 if (IsCanceled)
                     return;
-                await ForwardNextAsync(_sum);
-                await ForwardCompletedAsync();
+                await ForwardNextAsync(_sum).ConfigureAwait(false);
+                await ForwardCompletedAsync().ConfigureAwait(false);
             }
         }
     }

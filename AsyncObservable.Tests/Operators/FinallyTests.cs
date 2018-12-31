@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using System.Reactive.Disposables;
 using System.Reactive;
+using System.Threading;
 
 namespace Tests
 {
@@ -25,16 +26,20 @@ namespace Tests
         }
 
         [Fact]
-        public void Finally1()
+        public async Task Finally1()
         {
+            var cts = new CancellationTokenSource();
             string result = "";
 
-            var d = AsyncObservable.Never<int>()
+            var t = AsyncObservable.Never<int>()
                 .Finally(() => result += "1")
                 .Finally(() => result += "2")
-                .Subscribe(i => result += "N", ex => result += "E", () => result += "C");
+                .SubscribeAsync(i => result += "N", ex => result += "E", () => result += "C", ca: cts.Token);
 
-            d.Dispose();
+            cts.Cancel();
+
+            await t;
+
             result
                 .Should().Be("12");
         }

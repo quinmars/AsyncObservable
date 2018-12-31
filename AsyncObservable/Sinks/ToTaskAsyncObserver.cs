@@ -9,7 +9,7 @@ namespace Quinmars.AsyncObservable
     {
         public static async ValueTask<TResult> ToTask<TSource, TResult>(this IAsyncObservable<TSource> source, ToTaskAsyncObserver<TSource, TResult> observer)
         {
-            await source.SubscribeAsync(observer);
+            await source.SubscribeAsync(observer).ConfigureAwait(false);
             if (observer.Error != null)
                 throw observer.Error;
 

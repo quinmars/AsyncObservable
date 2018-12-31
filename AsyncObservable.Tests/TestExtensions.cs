@@ -13,7 +13,7 @@ namespace Tests
             return AsyncObservable.Range(0, delays.Length)
                 .Select(async (i, ca) =>
                 {
-                    await scheduler.Delay(delays[i], ca);
+                    await scheduler.Delay(delays[i], ca).ConfigureAwait(false);
                     return i;
                 });
         }
@@ -25,7 +25,7 @@ namespace Tests
             await obs.SubscribeAsync(i =>
             {
                 list.Add((i, scheduler.EllapsedTime));
-            });
+            }).ConfigureAwait(false);
 
             return list;
         }
@@ -37,10 +37,10 @@ namespace Tests
 
             await obs.SubscribeAsync(async i =>
             {
-                await scheduler.Delay(delays[index], default);
+                await scheduler.Delay(delays[index], default).ConfigureAwait(false);
                 list.Add((i, scheduler.EllapsedTime));
                 index++;
-            });
+            }).ConfigureAwait(false);
 
             return list;
         }

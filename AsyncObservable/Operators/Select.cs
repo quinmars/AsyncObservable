@@ -89,12 +89,12 @@ namespace Quinmars.AsyncObservable
 
                     try
                     {
-                        var v = await _selector(value);
-                        await ForwardNextAsync(v);
+                        var v = await _selector(value).ConfigureAwait(false);
+                        await ForwardNextAsync(v).ConfigureAwait(false);
                     }
                     catch (Exception ex)
                     {
-                        await SignalErrorAsync(ex);
+                        await SignalErrorAsync(ex).ConfigureAwait(false);
                     }
 
                 }
@@ -137,13 +137,13 @@ namespace Quinmars.AsyncObservable
 
                     try
                     {
-                        var v = await _selector(value, _caSource.Token);
-                        await ForwardNextAsync(v);
+                        var v = await _selector(value, _caSource.Token).ConfigureAwait(false);
+                        await ForwardNextAsync(v).ConfigureAwait(false);
                     }
                     catch (Exception ex)
                     {
                         if (!IsCanceled)
-                            await SignalErrorAsync(ex);
+                            await SignalErrorAsync(ex).ConfigureAwait(false);
                     }
 
                 }

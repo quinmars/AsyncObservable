@@ -39,12 +39,12 @@ namespace Quinmars.AsyncObservable
                 try
                 {
                     _inner = inner;
-                    await value.SubscribeAsync(inner);
+                    await value.SubscribeAsync(inner).ConfigureAwait(false);
                 }
                 catch (Exception error)
                 {
                     _inner = null;
-                    await SignalErrorAsync(error);
+                    await SignalErrorAsync(error).ConfigureAwait(false);
                 }
                 _inner = null;
             }

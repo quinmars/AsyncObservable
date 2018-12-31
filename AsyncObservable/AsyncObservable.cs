@@ -181,6 +181,14 @@ namespace Quinmars.AsyncObservable
             return new MaxInt32(source);
         }
 
+        public static IAsyncObservable<T> Merge<T>(this IAsyncObservable<IAsyncObservable<T>> source)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            return new Merge<T>(source);
+        }
+
         public static IAsyncObservable<T> Never<T>()
         {
             return new Never<T>();

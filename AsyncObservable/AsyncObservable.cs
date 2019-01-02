@@ -76,6 +76,22 @@ namespace Quinmars.AsyncObservable
             return new ConcatEnumerable<T>(sources);
         }
 
+        public static IAsyncObservable<T> Defer<T>(Func<IAsyncObservable<T>> factory)
+        {
+            if (factory == null)
+                throw new ArgumentNullException(nameof(factory));
+
+            return new Defer<T>.Sync(factory);
+        }
+
+        public static IAsyncObservable<T> Defer<T>(Func<ValueTask<IAsyncObservable<T>>> factory)
+        {
+            if (factory == null)
+                throw new ArgumentNullException(nameof(factory));
+
+            return new Defer<T>.Async(factory);
+        }
+
         public static IAsyncObservable<T> Distinct<T>(this IAsyncObservable<T> sources)
         {
             if (sources == null)

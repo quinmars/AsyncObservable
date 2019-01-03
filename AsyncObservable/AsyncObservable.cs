@@ -456,20 +456,20 @@ namespace Quinmars.AsyncObservable
             return new Skip<T>(source, count);
         }
 
-        public static IAsyncObservable<double> Sum(this IAsyncObservable<double> source)
+        public static IAsyncObservable<int> Sum(this IAsyncObservable<int> source, bool intermediateResults = false)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
-            return new SumDouble(source);
+            return AggregateImpl.CreateSafe(source, new SumIntAggregator(), intermediateResults);
         }
 
-        public static IAsyncObservable<int> Sum(this IAsyncObservable<int> source)
+        public static IAsyncObservable<double> Sum(this IAsyncObservable<double> source, bool intermediateResults = false)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
-            return new SumInt32(source);
+            return AggregateImpl.Create(source, new SumDoubleAggregator(), intermediateResults);
         }
 
         public static IAsyncObservable<T> Take<T>(this IAsyncObservable<T> source, int count)

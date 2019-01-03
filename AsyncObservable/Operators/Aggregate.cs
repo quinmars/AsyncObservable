@@ -15,6 +15,15 @@ namespace Quinmars.AsyncObservable
             else
                 return new Aggregate<T,T>.WithInterface<TAggregator>(source, aggregator);
         }
+
+        static public IAsyncObservable<T> CreateSafe<T, TAggregator>(IAsyncObservable<T> source, TAggregator aggregator, bool intermediateResults)
+            where TAggregator : struct, IAggreagator<T, T>
+        {
+            if (intermediateResults)
+                return new Aggregate<T, T>.SafeWithInterfaceIntermediateResults<TAggregator>(source, aggregator);
+            else
+                return new Aggregate<T,T>.SafeWithInterface<TAggregator>(source, aggregator);
+        }
     }
 
     static class Aggregate<TSource, TResult>
@@ -188,6 +197,136 @@ namespace Quinmars.AsyncObservable
                     if (!IsCanceled)
                     {
                         if (_aggregator.Add(value))
+                            return ForwardNextAsync(_aggregator.Value);
+                    }
+                    return default;
+                }
+
+                public override ValueTask OnCompletedAsync()
+                {
+                    if (IsCanceled)
+                        return default;
+
+                    if (!_aggregator.HasValue)
+                        return ForwardErrorAsync(new InvalidOperationException("Sequence contains no elements!"));
+
+                    return ForwardCompletedAsync();
+                }
+            }
+        }
+
+        public class SafeWithInterface<TAggregator> : IAsyncObservable<TResult>
+            where TAggregator : struct, IAggreagator<TSource, TResult>
+        {
+            readonly IAsyncObservable<TSource> _source;
+            readonly TAggregator _aggregator;
+
+            public SafeWithInterface(IAsyncObservable<TSource> source, TAggregator aggregator)
+            {
+                _source = source;
+                _aggregator = aggregator;
+            }
+
+            public ValueTask SubscribeAsync(IAsyncObserver<TResult> observer)
+            {
+                var o = new Observer(observer, _aggregator);
+                return _source.SubscribeAsync(o);
+            }
+
+            class Observer : ForwardingAsyncObserver<TSource, TResult>
+            {
+                TAggregator _aggregator; // Possibly mutable struct. Do not make this readonly.
+
+                public Observer(IAsyncObserver<TResult> observer, TAggregator aggregator)
+                    : base(observer)
+                {
+                    _aggregator = aggregator;
+                    _aggregator.Init();
+                }
+
+                public override ValueTask OnNextAsync(TSource value)
+                {
+                    if (!IsCanceled)
+                    {
+                        var ret = default(bool);
+
+                        try
+                        {
+                            ret = _aggregator.Add(value);
+                        }
+                        catch (Exception error)
+                        {
+                            return SignalErrorAsync(error);
+                        }
+
+                        if (ret)
+                            return ForwardNextAsync(_aggregator.Value);
+                    }
+                    return default;
+                }
+
+                public override async ValueTask OnCompletedAsync()
+                {
+                    if (IsCanceled)
+                        return;
+
+                    if (!_aggregator.HasValue)
+                    {
+                        await ForwardErrorAsync(new InvalidOperationException("Sequence contains no elements!")).ConfigureAwait(false);
+                        return;
+                    }
+
+                    await ForwardNextAsync(_aggregator.Value).ConfigureAwait(false);
+                    await ForwardCompletedAsync().ConfigureAwait(false);
+                }
+            }
+        }
+
+        public class SafeWithInterfaceIntermediateResults<TAggregator> : IAsyncObservable<TResult>
+            where TAggregator : struct, IAggreagator<TSource, TResult>
+        {
+            readonly IAsyncObservable<TSource> _source;
+            readonly TAggregator _aggregator;
+
+            public SafeWithInterfaceIntermediateResults(IAsyncObservable<TSource> source, TAggregator aggregator)
+            {
+                _source = source;
+                _aggregator = aggregator;
+            }
+
+            public ValueTask SubscribeAsync(IAsyncObserver<TResult> observer)
+            {
+                var o = new Observer(observer, _aggregator);
+                return _source.SubscribeAsync(o);
+            }
+
+            class Observer : ForwardingAsyncObserver<TSource, TResult>
+            {
+                TAggregator _aggregator; // Possibly mutable struct. Do not make this readonly.
+
+                public Observer(IAsyncObserver<TResult> observer, TAggregator aggregator)
+                    : base(observer)
+                {
+                    _aggregator = aggregator;
+                    _aggregator.Init();
+                }
+
+                public override ValueTask OnNextAsync(TSource value)
+                {
+                    if (!IsCanceled)
+                    {
+                        var ret = default(bool);
+
+                        try
+                        {
+                            ret = _aggregator.Add(value);
+                        }
+                        catch (Exception error)
+                        {
+                            return SignalErrorAsync(error);
+                        }
+
+                        if (ret)
                             return ForwardNextAsync(_aggregator.Value);
                     }
                     return default;

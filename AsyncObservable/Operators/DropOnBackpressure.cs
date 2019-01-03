@@ -9,7 +9,6 @@ namespace Quinmars.AsyncObservable
     class DropOnBackpressure<T> : IAsyncObservable<T>
     {
         readonly IAsyncObservable<T> _source;
-        readonly int _count;
 
         public DropOnBackpressure(IAsyncObservable<T> source)
         {

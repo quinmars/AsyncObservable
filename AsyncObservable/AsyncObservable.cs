@@ -18,7 +18,7 @@ namespace Quinmars.AsyncObservable
             if (aggregator == null)
                 throw new ArgumentNullException(nameof(aggregator));
 
-            return new Aggregate<TSource, TResult>(source, seed, aggregator);
+            return new Aggregate<TSource, TResult>.WithDelegate(source, seed, aggregator);
         }
 
         public static ValueTask<bool> AllAsync<T>(this IAsyncObservable<T> source, Func<T, bool> predicate)
@@ -180,21 +180,44 @@ namespace Quinmars.AsyncObservable
             return source.ToTask(observer);
         }
 
-
-        public static IAsyncObservable<double> Max(this IAsyncObservable<double> source)
+        public static IAsyncObservable<int> Max(this IAsyncObservable<int> source, bool intermediateResults = false)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
-            return new MaxDouble(source);
+            return AggregateImpl.Create(source, new MaxIntAggregator(), intermediateResults);
         }
 
-        public static IAsyncObservable<int> Max(this IAsyncObservable<int> source)
+        public static IAsyncObservable<int?> Max(this IAsyncObservable<int?> source, bool intermediateResults = false)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
-            return new MaxInt32(source);
+            return AggregateImpl.Create(source, new MaxIntNullableAggregator(), intermediateResults);
+        }
+
+        public static IAsyncObservable<long> Max(this IAsyncObservable<long> source, bool intermediateResults = false)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            return AggregateImpl.Create(source, new MaxLongAggregator(), intermediateResults);
+        }
+
+        public static IAsyncObservable<long?> Max(this IAsyncObservable<long?> source, bool intermediateResults = false)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            return AggregateImpl.Create(source, new MaxLongNullableAggregator(), intermediateResults);
+        }
+
+        public static IAsyncObservable<double> Max(this IAsyncObservable<double> source, bool intermediateResults = false)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            return AggregateImpl.Create(source, new MaxDoubleAggregator(), intermediateResults);
         }
 
         public static IAsyncObservable<T> Merge<T>(this IAsyncObservable<IAsyncObservable<T>> source)

@@ -23,7 +23,7 @@ namespace Tests
         }
 
         [Fact]
-        public async Task Int32_Empty()
+        public async Task Int_Empty()
         {
             string result = "";
 
@@ -36,7 +36,7 @@ namespace Tests
         }
 
         [Fact]
-        public async Task Int32_Range()
+        public async Task Int_Range()
         {
             int result = 0;
 
@@ -47,6 +47,31 @@ namespace Tests
             result
                 .Should()
                 .Be(0 + 1 + 2);
+        }
+
+        [Fact]
+        public async Task Int_Intermediate_Empty()
+        {
+            string result = "";
+
+            await AsyncObservable.Empty<int>()
+                .Sum(intermediateResults: true)
+                .SubscribeAsync(i => result += i, onCompleted: () => result += "C");
+
+            result
+                .Should().Be("C");
+        }
+
+        [Fact]
+        public async Task Int_Intermediate_Range()
+        {
+            var result = await AsyncObservable.Range(0, 3)
+                .Sum(intermediateResults: true)
+                .ToListAsync();
+
+            result
+                .Should()
+                .BeEquivalentTo(0, 1, 3);
         }
 
         [Fact]
@@ -74,6 +99,31 @@ namespace Tests
             result
                 .Should()
                 .Be(20.0);
+        }
+
+        [Fact]
+        public async Task Double_Intermediate_Empty()
+        {
+            double result = Double.NaN;
+
+            await AsyncObservable.Empty<double>()
+                .Sum(intermediateResults: true)
+                .SubscribeAsync(i => result = i);
+
+            result
+                .Should().Be(Double.NaN);
+        }
+
+        [Fact]
+        public async Task Double_Intermediate_Range()
+        {
+            var result = await new[] { 0.0, 4.0, 13.0, 3.0}.ToAsyncObservable()
+                .Sum(intermediateResults: true)
+                .ToListAsync();
+
+            result
+                .Should()
+                .BeEquivalentTo(0.0, 4.0, 17.0, 20.0);
         }
     }
 }

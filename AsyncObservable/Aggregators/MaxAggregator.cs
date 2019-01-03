@@ -133,7 +133,7 @@ namespace Quinmars.AsyncObservable
         {
             if (HasValue)
             {
-                // if value is NaN _max should also become NaN
+                // if value is NaN Value should also become NaN
                 if (value > Value || double.IsNaN(value))
                 {
                     Value = value;
